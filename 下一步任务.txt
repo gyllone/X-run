@@ -1,0 +1,12 @@
+seed1 -> deviceid[0] -> key1
+seed2 -> id[1] -> key2
+seed3 -> id[2] -> key3
+
+seed1 -> appid[0] -> key1
+seed2 -> id[1] -> key2
+seed3 -> id[2] -> key3
+
+
+1.设备故障
+2.电量上传
+3.标定模式
