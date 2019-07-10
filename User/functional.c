@@ -10,24 +10,20 @@ extern volatile Step running;
 extern volatile float hanging;
 extern volatile uint8_t stepflag;
 
-//波峰记录
-static uint32_t crestrecord = 0;
-//波谷记录
-static uint32_t throughrecord = 0;
 //压力一次滤波值
 static float pressurebuffer;
 //滤波计数
 static uint8_t filtercounter = 0;
 //当前cycle进行的阶段标志
 //static uint8_t cycleflag = 0;
-uint8_t cycleflag = 0;
+static uint8_t cycleflag = 0;
 //上个cycle进行的阶段标志
 static uint8_t cyclelastflag = 0;
 //当前cycle的某个阶段持续周期数
 static uint8_t cyclecounter = 0;
 //当前cycle的超时周期数
 //static uint8_t overtimecounter = 0;
-uint8_t overtimecounter = 0;
+static uint8_t overtimecounter = 0;
 
 //压力平均值滤波，每5个值取平均值
 static void FUNC_pressure_drift_filter(void) {
@@ -140,6 +136,7 @@ void FUNC_step_counter(void) {
 						}
 					}
 					else if (pressure < running.threshold) {
+						LED1_OFF;
 						cyclecounter = 0;
 						cycleflag = 2;
 					}
