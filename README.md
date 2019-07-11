@@ -2,6 +2,8 @@
 
 stepcounter implemented by STM32f103
 
+@copyright gyl
+
 20190711更改点:
 
 1. filter函数优化
