@@ -31,11 +31,11 @@ float pressure = 0;
 //电池SOC(%)
 uint8_t battsoc = 0;
 //走路相关信息
-volatile Step walking = {2.2, 0, 0};
+volatile Step walking = {2.1, 0, 0};
 //跑步相关信息
 volatile Step running = {1.6, 0, 0};
 //体重
-volatile float weight = 2.5;
+volatile float weight = 2.4;
 //静置压力
 volatile float hanging = 2.65;
 //静置计数
@@ -61,27 +61,25 @@ void RTC_IRQHandler(void)
 		RTC_WaitForLastTask();
 		//添加中断处理内容
 		FUNC_battSOC_caculation();
-		//LED1_OFF;
 	}
 	//闹钟中断
 	if (RTC_GetITStatus(RTC_IT_ALR) != RESET) 
 	{
 		RTC_ClearITPendingBit(RTC_IT_ALR);
 		RTC_WaitForLastTask();
-		//LED1_ON;
 	}
 }
 
 //进入低功耗模式判断
 uint8_t SleepOrNot(void) {
-	//SOC小于5%直接休眠
-	if (battsoc < 5) {
-		return 0;
+	//SOC = 0直接休眠
+	if (battsoc < 1) {
+		//return 0;
 	}
-	//静置状态维持10min后休眠
+	//静置状态维持1min后休眠
 	if (pressure > hanging && stepflag < 1) {
 		standingcounter++;
-		if (standingcounter > 60000) {
+		if (standingcounter > 6000) {
 			return 0;
 		}
 	}
@@ -120,19 +118,29 @@ void Initialization(void) {
 int main(void)
 {	
 	Initialization();
+	//主循环10ms一次
 	while (SleepOrNot())
 	{
 		FUNC_step_counter();
 		IWDG_Feed();
 	}
 	EEP_sleep_write();
-	RTC_SetAlarm(RTC_GetCounter() + 30); //30s后唤醒
+	RTC_SetAlarm(RTC_GetCounter() + 420); //420s后唤醒
 	RTC_WaitForLastTask();
-	IWDG_Config(IWDG_Prescaler_256 ,10000); //看门狗溢出时间设置为最大
+	IWDG_Config(IWDG_Prescaler_256 ,65535); //看门狗溢出时间设置为最大
 	IWDG_Feed();
+	//休眠时闪烁一下
+	LED1_ON;
+	LED2_ON;
+	LEDDELAY;
+	LED1_OFF;
+	LED2_OFF;
+	LEDDELAY;
+	LED1_ON;
+	LED2_ON;
+	LEDDELAY;
 	//进入低功耗模式
 	PWR_EnterSTANDBYMode();
 }
-
 
 /*********************************************END OF FILE**********************/

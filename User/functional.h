@@ -5,13 +5,14 @@
 #include "bsp_adc.h"
 #include "bsp_led.h"
 
-#define PRESSURE_FACTOR 0.5 //滤波系数
+#define PRESSURE_FACTOR 0.45 //滤波系数
 #define BATTVOLT_FACTOR 0.3 //滤波系数
 
 #define WALK_WEIGHT_RATIO 0.85 //走路压力比
 #define RUN_WEIGHT_RATIO 0.75 //跑步压力比
 
 #define SAMPLEDELAY delay_ms(2); //隔2ms读一次电压
+#define LEDDELAY delay_ms(300); //LED闪烁
 
 //表示步数，run和walk通用
 typedef struct Stepping {
