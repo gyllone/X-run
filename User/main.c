@@ -4,79 +4,191 @@
 #include "bsp_i2c_ee.h"
 #include "bsp_i2c_gpio.h"
 #include "bsp_rtc.h"
+#include "bsp_usart.h"
 #include "bsp_iwdg.h"
 #include "bsp_chipid.h"
 #include "stm32f10x_iwdg.h"
 #include "eeprom.h"
 #include "functional.h"
 #include <inttypes.h>
-#include <math.h>
 
-extern __IO uint16_t ADC_ConvertedValue[NOFCHANEL];
-extern uint32_t ChipUniqueID[3];
+const uint32_t device_id = 0x2A16E4E8;
 
-extern void Crypto_CalcKey(uint32_t wSeed, uint32_t *keyset);
-extern void Crypto_Random(uint32_t *randseedset);
-
-//°ó¶¨×´Ì¬£¬0x1AÎª°ó¶¨³É¹¦
-uint8_t binding_flag = 0x1A;
+//ï¿½ï¿½×´Ì¬ï¿½ï¿½0x1AÎªï¿½ó¶¨³É¹ï¿½
+volatile uint8_t binding_flag = 0x1A;
 //APP ID
-uint32_t app_id[3];
-//E·½×´Ì¬£¬0Õý³££¬1¹ÊÕÏ
-uint8_t eeprom_status = 0;
-//µç³ØµçÑ¹
-float battvolt = 0;
-//Ñ¹Á¦¶þ´ÎÂË²¨Öµ
-float pressure = 0;
-//µç³ØSOC(%)
-uint8_t battsoc = 0;
-//×ßÂ·Ïà¹ØÐÅÏ¢
+volatile uint32_t app_id;
+//Eï¿½ï¿½×´Ì¬ï¿½ï¿½0ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½1ï¿½ï¿½ï¿½ï¿½
+volatile uint8_t eeprom_status = 0;
+//ï¿½ï¿½Øµï¿½Ñ¹
+volatile float battvolt = 0;
+//Ñ¹ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ë²ï¿½Öµ
+volatile float pressure = 0;
+//ï¿½ï¿½ï¿½SOC(%)
+volatile uint8_t battsoc = 0;
+//ï¿½ï¿½Â·ï¿½ï¿½ï¿½ï¿½ï¿½Ï¢
 volatile Step walking = {2.1, 0, 0};
-//ÅÜ²½Ïà¹ØÐÅÏ¢
+//ï¿½Ü²ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ï¢
 volatile Step running = {1.6, 0, 0};
-//ÌåÖØ
+//ï¿½ï¿½ï¿½ï¿½
 volatile float weight = 2.4;
-//¾²ÖÃÑ¹Á¦
+//ï¿½ï¿½ï¿½ï¿½Ñ¹ï¿½ï¿½
 volatile float hanging = 2.65;
-//¾²ÖÃ¼ÆÊý
-uint16_t standingcounter = 0;
-//¼Æ²½×´Ì¬(0Îª¼Æ²½£¬1Îª¹Ø±Õ)
-volatile uint8_t stepflag = 0;
+//ï¿½ï¿½ï¿½Ã¼ï¿½ï¿½ï¿½
+static uint16_t standingcounter = 0;
+//ï¿½Æ²ï¿½×´Ì¬(0Îªï¿½Æ²ï¿½ï¿½ï¿½1Îªï¿½Ø±ï¿½)
+volatile uint8_t stepflag = 1;
 
-struct rtc_time clocktime = {
-	8, 0, 0, 7, 1, 2019, 0
-};
-//ÏµÍ³Ê±¼ä
+//ÏµÍ³Ê±ï¿½ï¿½
 struct rtc_time systmtime = {
 	0, 0, 0, 7, 1, 2019, 0
 };
 
-//RTCÖÐ¶Ï´¦Àí
+//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ú½ï¿½ï¿½Õ¼ï¿½ï¿½ï¿½
+uint8_t receivecounter = 0;
+//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×´Ì¬
+volatile uint8_t connectstatus = 0;
+static uint8_t lastconnectstatus = 0;
+
+void sendmessage(void) {
+	if (battsoc <= 5) {
+		return;
+	}
+	if (binding_flag != 0x1A) {
+		switch (connectstatus) {
+			case 1:
+				Usart_binding_sendseed();
+				break;
+			case 3:
+				Usart_binding_verify();
+				break;
+			case 5:
+				binding_flag = 0x1A;
+				EEP_binding_write();
+				Usart_SendByte(USART1, 0xAA);
+				connectstatus = 0;
+				stepflag = 0;
+				break;
+		}
+	}
+	else {
+		switch (connectstatus) {
+			case 1:
+				Usart_sendsoc();
+			  break;
+			case 3:
+				Usart_sendkey();
+			  break;
+			case 5:
+				Usart_sendstep();
+			  EEP_step_write();
+			  break;
+			case 6:
+				EEP_weight_write();
+				Usart_SendByte(USART1, 0xAA);
+				connectstatus = 0;
+			  stepflag = 0;
+			case 7:
+				EEP_hang_write();
+			  Usart_SendByte(USART1, 0xAA);
+				connectstatus = 0;
+			  stepflag = 0;
+		}
+	}
+}
+		
+void receivemessage(void) {
+	if (battsoc <= 5) {
+		return;
+	}
+	if (binding_flag != 0x1A) {
+		switch (connectstatus) {
+			case 0:
+				Usart_binding_listen();
+				break;
+		  case 2:
+				Usart_binding_receivekey();
+				break;
+			case 4:
+				Usart_binding_receiveid();
+			  break;
+		}
+	}
+  else {
+		switch (connectstatus) {
+			case 0:
+				Usart_upload_listen();
+				break;
+			case 2:
+				Usart_receiveseed();
+			  break;
+			case 4:
+				if (USART_ReceiveData(USART1) == 0xBB) {
+					connectstatus++;
+				}
+				else if (USART_ReceiveData(USART1) == 0xCC) {
+				  connectstatus = 6;
+				}
+				else if (USART_ReceiveData(USART1) == 0xDD) {
+					connectstatus = 7;
+				}
+				else {
+					connectstatus = 0;
+					stepflag = 0;
+				}
+				break;
+		}
+	}
+}
+
+void listen_reset(void) {
+	lastconnectstatus = connectstatus;
+	if (lastconnectstatus > 0 && connectstatus > 0) {
+		connectstatus = 0;
+		lastconnectstatus = 0;
+		receivecounter = 0;
+		if (binding_flag == 0x1A) {
+			stepflag = 0;
+		}
+	}
+}
+
+//RTCï¿½Ð¶Ï´ï¿½ï¿½ï¿½
 void RTC_IRQHandler(void)
 {
-	//2sÖÐ¶Ï
-	if (RTC_GetITStatus(RTC_IT_SEC) != RESET) 
-	{
-		RTC_ClearITPendingBit(RTC_IT_SEC|RTC_IT_OW);
-		RTC_WaitForLastTask();
-		//Ìí¼ÓÖÐ¶Ï´¦ÀíÄÚÈÝ
-		FUNC_battSOC_caculation();
-	}
-	//ÄÖÖÓÖÐ¶Ï
-	if (RTC_GetITStatus(RTC_IT_ALR) != RESET) 
+	//ï¿½ï¿½ï¿½ï¿½ï¿½Ð¶ï¿½
+	if (RTC_GetITStatus(RTC_IT_ALR) != RESET)
 	{
 		RTC_ClearITPendingBit(RTC_IT_ALR);
 		RTC_WaitForLastTask();
 	}
+	//5sï¿½Ð¶ï¿½
+	if (RTC_GetITStatus(RTC_IT_SEC) != RESET) 
+	{
+		RTC_ClearITPendingBit(RTC_IT_SEC|RTC_IT_OW);
+		RTC_WaitForLastTask();
+		//ï¿½ï¿½ï¿½ï¿½ï¿½Ð¶Ï´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+		FUNC_battSOC_caculation();
+		listen_reset();
+	}
 }
 
-//½øÈëµÍ¹¦ºÄÄ£Ê½ÅÐ¶Ï
+//ï¿½ï¿½ï¿½ï¿½ï¿½Ð¶Ï´ï¿½ï¿½ï¿½
+void USART1_IRQHandler(void) {
+	//ï¿½ï¿½ï¿½ï¿½ï¿½Ð¶ï¿½
+	 if(USART_GetITStatus(USART1, USART_IT_RXNE) != RESET) {
+		 USART_ClearITPendingBit(USART1, USART_IT_RXNE);
+		 receivemessage();
+	 }
+ }	 
+
+//ï¿½ï¿½ï¿½ï¿½Í¹ï¿½ï¿½ï¿½Ä£Ê½ï¿½Ð¶ï¿½
 uint8_t SleepOrNot(void) {
-	//SOC = 0Ö±½ÓÐÝÃß
+	//SOC = 0Ö±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	if (battsoc < 1) {
-		//return 0;
+		return 0;
 	}
-	//¾²ÖÃ×´Ì¬Î¬³Ö1minºóÐÝÃß
+	//ï¿½ï¿½ï¿½ï¿½×´Ì¬Î¬ï¿½ï¿½10minï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	if (pressure > hanging && stepflag < 1) {
 		standingcounter++;
 		if (standingcounter > 6000) {
@@ -90,27 +202,27 @@ uint8_t SleepOrNot(void) {
 }
 
 void Initialization(void) {
-  //led³õÊ¼»¯
+  //ledï¿½ï¿½Ê¼ï¿½ï¿½
 	LED_GPIO_Config();
 	LED1_ON;
 	LED2_ON;
-	//adc³õÊ¼»¯
+	//adcï¿½ï¿½Ê¼ï¿½ï¿½
 	ADCx_Init();
 	//Ð¾Æ¬ID
 	Get_ChipID();
-	//E·½³õÊ¼»¯¶ÁÈ¡
+	//Eï¿½ï¿½ï¿½ï¿½Ê¼ï¿½ï¿½ï¿½ï¿½È¡
 	EEP_initial_read();
-	//²é¿´°ó¶¨×´Ì¬
-	if (binding_flag != 0x1A) {
-		// ............
-		// ............
-		// ............
-	}
-	//²ÉÑùÓë¹¦ÄÜ³õÊ¼»¯
+	//ï¿½ï¿½ï¿½Ú³ï¿½Ê¼ï¿½ï¿½
+	USART_Config();
+	//ï¿½ï¿½ï¿½ï¿½ï¿½ë¹¦ï¿½Ü³ï¿½Ê¼ï¿½ï¿½
 	FUNC_functional_initial();
-	//¿´ÃÅ¹·³õÊ¼»¯
+	//Î´ï¿½ï¿½Ê±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ²ï¿½ï¿½ï¿½ï¿½ï¿½
+	if (binding_flag == 0x1A) {
+		stepflag = 0;
+	}
+	//ï¿½ï¿½ï¿½Å¹ï¿½ï¿½ï¿½Ê¼ï¿½ï¿½
 	IWDG_Init();
-	IWDG_Config(IWDG_Prescaler_16, 125);//¿´ÃÅ¹·Òç³öÊ±¼ä50ms
+	IWDG_Config(IWDG_Prescaler_16, 250);//ï¿½ï¿½ï¿½Å¹ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½100ms
 	LED1_OFF;
 	LED2_OFF;
 }
@@ -118,28 +230,25 @@ void Initialization(void) {
 int main(void)
 {	
 	Initialization();
-	//Ö÷Ñ­»·10msÒ»´Î
+	//ï¿½ï¿½Ñ­ï¿½ï¿½10msÒ»ï¿½ï¿½
 	while (SleepOrNot())
 	{
+		sendmessage();
 		FUNC_step_counter();
 		IWDG_Feed();
 	}
 	EEP_sleep_write();
-	RTC_SetAlarm(RTC_GetCounter() + 420); //420sºó»½ÐÑ
+	RTC_SetAlarm(RTC_GetCounter() + 420); //420sï¿½ï¿½ï¿½ï¿½
 	RTC_WaitForLastTask();
-	IWDG_Config(IWDG_Prescaler_256 ,65535); //¿´ÃÅ¹·Òç³öÊ±¼äÉèÖÃÎª×î´ó
+	IWDG_Config(IWDG_Prescaler_256 ,65535); //ï¿½ï¿½ï¿½Å¹ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Îªï¿½ï¿½ï¿½
 	IWDG_Feed();
-	//ÐÝÃßÊ±ÉÁË¸Ò»ÏÂ
+	//ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½Ë¸Ò»ï¿½ï¿½
 	LED1_ON;
 	LED2_ON;
 	LEDDELAY;
 	LED1_OFF;
 	LED2_OFF;
-	LEDDELAY;
-	LED1_ON;
-	LED2_ON;
-	LEDDELAY;
-	//½øÈëµÍ¹¦ºÄÄ£Ê½
+	//ï¿½ï¿½ï¿½ï¿½Í¹ï¿½ï¿½ï¿½Ä£Ê½
 	PWR_EnterSTANDBYMode();
 }
 

@@ -1,25 +1,39 @@
 // @gyl
 #include "functional.h"
 
+const extern uint32_t device_id;
 extern __IO uint16_t ADC_ConvertedValue[NOFCHANEL];
-extern float battvolt;
-extern float pressure;
-extern uint8_t battsoc;
+extern volatile uint32_t app_id;
+extern volatile float battvolt;
+extern volatile float pressure;
+extern volatile uint8_t battsoc;
+extern volatile uint8_t stepflag;
+extern volatile uint8_t eeprom_status;
 extern volatile Step walking;
 extern volatile Step running;
+extern volatile float weight;
 extern volatile float hanging;
-extern volatile uint8_t stepflag;
 
-//µ±Ç°cycle½øÐÐµÄ½×¶Î±êÖ¾
+extern uint8_t receivecounter;
+extern volatile uint8_t connectstatus;
+
+extern uint32_t Crypto_CalcKey(uint32_t wSeed, uint32_t security);
+extern void Crypto_Random(uint32_t *randseedset);
+
+//ï¿½ï¿½Ç°cycleï¿½ï¿½ï¿½ÐµÄ½×¶Î±ï¿½Ö¾
 static uint8_t cycleflag = 0;
-//ÉÏ¸öcycle½øÐÐµÄ½×¶Î±êÖ¾
+//ï¿½Ï¸ï¿½cycleï¿½ï¿½ï¿½ÐµÄ½×¶Î±ï¿½Ö¾
 static uint8_t cyclelastflag = 0;
-//µ±Ç°cycleµÄÄ³¸ö½×¶Î³ÖÐøÖÜÆÚÊý
+//ï¿½ï¿½Ç°cycleï¿½ï¿½Ä³ï¿½ï¿½ï¿½×¶Î³ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 static uint8_t cyclecounter = 0;
-//µ±Ç°cycleµÄ³¬Ê±ÖÜÆÚÊý
+//ï¿½ï¿½Ç°cycleï¿½Ä³ï¿½Ê±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 static uint8_t overtimecounter = 0;
 
-//Ñ¹Á¦ÂË²¨£¬ÏÈÒÔ2ms¼ä¸ôÈ¡5¸öµçÑ¹×ö¾ùÖµ£¬È»ºó×öÒ»´ÎÖÍºóÂË²¨
+//seed key
+static uint32_t seedset[3];
+static uint32_t keyset[3];
+
+//Ñ¹ï¿½ï¿½ï¿½Ë²ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½2msï¿½ï¿½ï¿½È¡5ï¿½ï¿½ï¿½ï¿½Ñ¹ï¿½ï¿½ï¿½ï¿½Öµï¿½ï¿½È»ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½Íºï¿½ï¿½Ë²ï¿½
 static void FUNC_pressure_filter(void) {
 	uint8_t filtercounter;
 	float pressurebuffer;
@@ -30,21 +44,21 @@ static void FUNC_pressure_filter(void) {
 	pressure = (1 - PRESSURE_FACTOR) * pressurebuffer + PRESSURE_FACTOR * pressure;
 }
 
-//µç³ØSOC¼ÆËã
+//ï¿½ï¿½ï¿½SOCï¿½ï¿½ï¿½ï¿½
 void FUNC_battSOC_caculation(void) {
 	battvolt = (1 - BATTVOLT_FACTOR) * ((float) ADC_ConvertedValue[1] / 2048 * 3.3) + BATTVOLT_FACTOR * battvolt;
 	if (battvolt > 4.2) {
 		battsoc = 100;
 	}
-	else if (battvolt < 3.35) {
+	else if (battvolt < 3.33) {
 		battsoc = 0;
 	}
 	else {
-		battsoc = (uint8_t)((battvolt - 3.35) / 0.85 * 100);
+		battsoc = (uint8_t)((battvolt - 3.33) / 0.87 * 100);
 	}
 }
 
-//¹¦ÄÜÐÔ³õÊ¼»¯
+//ï¿½ï¿½ï¿½ï¿½ï¿½Ô³ï¿½Ê¼ï¿½ï¿½
 void FUNC_functional_initial(void) {
 	uint8_t i;
 	for (i = 0; i < 30; i++) {
@@ -53,7 +67,7 @@ void FUNC_functional_initial(void) {
 	}
 }
 
-//cycle³¬Ê±ÅÐ¶Ï£¬³¬¹ý100¸öÖÜÆÚreset
+//cycleï¿½ï¿½Ê±ï¿½Ð¶Ï£ï¿½ï¿½ï¿½ï¿½ï¿½100ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½reset
 static void FUNC_overtime_reset(void) {
 	if (overtimecounter > 100) {
 		LED1_OFF;
@@ -75,25 +89,25 @@ static void FUNC_overtime_reset(void) {
 	cyclelastflag = cycleflag;
 }
 	
-/*                    ¼Æ²½Í¼½â
+/*                    ï¿½Æ²ï¿½Í¼ï¿½ï¿½
 
             * * * 
-----------*------ *--------------------------------ÅÜ²½Ñ¹Á¦
+----------*------ *--------------------------------ï¿½Ü²ï¿½Ñ¹ï¿½ï¿½
          *|       |* 
         * |       | * 
--------*--|-------|--*-----------------------------×ßÂ·Ñ¹Á¦
+-------*--|-------|--*-----------------------------ï¿½ï¿½Â·Ñ¹ï¿½ï¿½
       *|  |       |  |*
-     * |  |       |  | *   ½øÈë3/4    ÍË³ö3/4£¬½øÈë5/6£¬Íê³ÉÒ»¸öCycle£¬»Ø¹é0
-----*--|--|-------|--|--*---|-----------|---*------ÖØÁ¦Ïß
-    0  ½ø ½ø      ÍË ÍË  *  |           |  *
-       Èë Èë      ³ö ³ö   * |           | *
+     * |  |       |  | *   ï¿½ï¿½ï¿½ï¿½3/4    ï¿½Ë³ï¿½3/4ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½5/6ï¿½ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½Cycleï¿½ï¿½ï¿½Ø¹ï¿½0
+----*--|--|-------|--|--*---|-----------|---*------ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+    0  ï¿½ï¿½ ï¿½ï¿½      ï¿½ï¿½ ï¿½ï¿½  *  |           |  *
+       ï¿½ï¿½ ï¿½ï¿½      ï¿½ï¿½ ï¿½ï¿½   * |           | *
        1  2       2  1     *|           |*
-----------------------------*-----------*----------Ðü¿ÕÑ¹Á¦Ïß
+----------------------------*-----------*----------ï¿½ï¿½ï¿½ï¿½Ñ¹ï¿½ï¿½ï¿½ï¿½
 														 *         *
                               *       *
                                 * * *
 */
-//stepflag = 0Ê±¿ªÆô¼Æ²½¹¦ÄÜ
+//stepflag = 0Ê±ï¿½ï¿½ï¿½ï¿½ï¿½Æ²ï¿½ï¿½ï¿½ï¿½ï¿½
 void FUNC_step_counter(void) {
 	FUNC_pressure_filter();
 	if (stepflag < 1) {
@@ -163,4 +177,192 @@ void FUNC_step_counter(void) {
 				break;
 		}
 	}
+}
+
+/****************
+*****************
+ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Í¨Ñ¶ï¿½ï¿½ï¿½ï¿½
+*****************
+*****************/
+
+//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+void Usart_binding_listen(void) {
+	if (USART_ReceiveData(USART1) == 0x11) {
+		connectstatus++;
+	}
+	else {
+		connectstatus = 0;
+	}
+}
+
+//ï¿½ï¿½ï¿½ï¿½ï¿½Ï´ï¿½ï¿½ï¿½ï¿½ï¿½
+void Usart_upload_listen(void) {
+	//ï¿½ï¿½Í¨ï¿½ï¿½ï¿½ï¿½
+	if (USART_ReceiveData(USART1) == 0x22) {
+		connectstatus++;
+	}
+	//ï¿½ï¿½Òªï¿½ï¿½È«ï¿½ï¿½ï¿½ï¿½
+	else if (USART_ReceiveData(USART1) == 0x33) {
+		connectstatus = 3;
+		stepflag = 1;
+	}
+}
+
+//ï¿½ï¿½ï¿½ï¿½seed
+void Usart_binding_sendseed(void) {
+	uint8_t i;
+	uint8_t data[12];
+	Crypto_Random(seedset);
+	for (i = 0; i < 3; i++) {
+		data[4 * i] = (uint8_t)(seedset[i] >> 24);
+		data[4 * i] = (uint8_t)(seedset[i] >> 16);
+		data[4 * i] = (uint8_t)(seedset[i] >> 8);
+		data[4 * i] = (uint8_t)seedset[i];
+	}
+	Usart_SendArray(USART1, data, 12);
+	connectstatus++;
+}
+
+//ï¿½ï¿½ï¿½ï¿½key
+void Usart_sendkey(void) {
+	uint8_t i;
+	uint8_t data[12];
+	for (i = 0; i < 3; i++) {
+		keyset[i] = Crypto_CalcKey(seedset[i], app_id);
+		data[4 * i] = (uint8_t)(keyset[i] >> 24);
+		data[4 * i] = (uint8_t)(keyset[i] >> 16);
+		data[4 * i] = (uint8_t)(keyset[i] >> 8);
+		data[4 * i] = (uint8_t)keyset[i];
+	}
+	Usart_SendArray(USART1, data, 12);
+	connectstatus++;
+}
+
+//ï¿½ï¿½ï¿½ï¿½key
+void Usart_binding_receivekey(void) {
+	if (receivecounter == 0 || receivecounter == 4 || receivecounter == 8) {
+		keyset[receivecounter / 4] = (uint32_t)(USART_ReceiveData(USART1) << 24);
+		receivecounter++;
+	}
+	else if (receivecounter == 1 || receivecounter == 5 || receivecounter == 9) {
+		keyset[receivecounter / 4] = keyset[receivecounter / 4] | (uint32_t)(USART_ReceiveData(USART1) << 16);
+		receivecounter++;
+	}
+	else if (receivecounter == 2 || receivecounter == 6 || receivecounter == 10) {
+		keyset[receivecounter / 4] = keyset[receivecounter / 4] | (uint32_t)(USART_ReceiveData(USART1) << 8);
+		receivecounter++;
+	}
+	else if (receivecounter == 3 || receivecounter == 7) {
+		keyset[receivecounter / 4] = keyset[receivecounter / 4] | (uint32_t)(USART_ReceiveData(USART1) << 8);
+		receivecounter++;
+	}
+	else if (receivecounter == 11) {
+		keyset[receivecounter / 4] = keyset[receivecounter / 4] | (uint32_t)(USART_ReceiveData(USART1) << 8);
+		receivecounter = 0;
+		connectstatus++;
+	}
+	else {
+		connectstatus = 0;
+		receivecounter = 0;
+	}
+}
+
+//ï¿½ï¿½ï¿½ï¿½seed
+void Usart_receiveseed(void) {
+	if (receivecounter == 0 || receivecounter == 4 || receivecounter == 8) {
+		seedset[receivecounter / 4] = (uint32_t)(USART_ReceiveData(USART1) << 24);
+		receivecounter++;
+	}
+	else if (receivecounter == 1 || receivecounter == 5 || receivecounter == 9) {
+		seedset[receivecounter / 4] = seedset[receivecounter / 4] | (uint32_t)(USART_ReceiveData(USART1) << 16);
+		receivecounter++;
+	}
+	else if (receivecounter == 2 || receivecounter == 6 || receivecounter == 10) {
+		seedset[receivecounter / 4] = seedset[receivecounter / 4] | (uint32_t)(USART_ReceiveData(USART1) << 8);
+		receivecounter++;
+	}
+	else if (receivecounter == 3 || receivecounter == 7) {
+		seedset[receivecounter / 4] = seedset[receivecounter / 4] | (uint32_t)(USART_ReceiveData(USART1) << 8);
+		receivecounter++;
+	}
+	else if (receivecounter == 11) {
+		seedset[receivecounter / 4] = seedset[receivecounter / 4] | (uint32_t)(USART_ReceiveData(USART1) << 8);
+		receivecounter = 0;
+		connectstatus++;
+	}
+	else {
+		connectstatus = 0;
+		receivecounter = 0;
+		stepflag = 0; //ï¿½Æ²ï¿½ï¿½ï¿½ï¿½ï¿½
+	}
+}
+
+//ï¿½ï¿½Ö¤seed-key
+void Usart_binding_verify(void) {
+	uint8_t i;
+	for (i = 0; i < 3; i++) {
+		if (Crypto_CalcKey(seedset[i], device_id) != keyset[i]) {
+			Usart_SendByte(USART1, 0xFF); //ï¿½ï¿½Ö¤ï¿½ï¿½Í¨ï¿½ï¿½
+			connectstatus = 0;
+			return;
+		}
+	}
+	Usart_SendByte(USART1, 0xAA); //ï¿½ï¿½Ö¤Í¨ï¿½ï¿½
+	connectstatus++;
+}
+
+//ï¿½ï¿½ï¿½ï¿½APP ID, ï¿½ï¿½0xBBï¿½ï¿½Í·ï¿½ï¿½0xCCï¿½ï¿½Î²
+void Usart_binding_receiveid(void) {
+	if (receivecounter == 0) {
+		app_id = (uint32_t)(USART_ReceiveData(USART1) << 24);
+		receivecounter++;
+	}
+	else if (receivecounter == 1) {
+		app_id = app_id | (uint32_t)(USART_ReceiveData(USART1) << 16);
+		receivecounter++;
+	}
+	else if (receivecounter == 2) {
+		app_id = app_id | (uint32_t)(USART_ReceiveData(USART1) << 8);
+		receivecounter++;
+	}
+	else if (receivecounter == 3) {
+		app_id = app_id | (uint32_t)USART_ReceiveData(USART1);
+		connectstatus++;
+		receivecounter = 0;
+	}
+	else {
+		connectstatus = 0;
+		receivecounter = 0;
+	}
+}
+
+//ï¿½Ï´ï¿½SOC
+void Usart_sendsoc(void) {
+	Usart_SendByte(USART1, eeprom_status);
+	Usart_SendByte(USART1, battsoc);
+	connectstatus = 0;
+}
+
+//ï¿½Ï´ï¿½ï¿½ï¿½ï¿½ï¿½
+void Usart_sendstep(void) {
+	uint8_t data[16];
+	data[0] = (uint8_t)(walking.current_steps >> 24);
+	data[1] = (uint8_t)(walking.current_steps >> 16);
+	data[2] = (uint8_t)(walking.current_steps >> 8);
+	data[3] = (uint8_t)(walking.current_steps);
+	data[4] = (uint8_t)(walking.total_steps >> 24);
+	data[5] = (uint8_t)(walking.total_steps >> 16);
+	data[6] = (uint8_t)(walking.total_steps >> 8);
+	data[7] = (uint8_t)(walking.total_steps);
+	data[8] = (uint8_t)(running.current_steps >> 24);
+	data[9] = (uint8_t)(running.current_steps >> 16);
+	data[10] = (uint8_t)(running.current_steps >> 8);
+	data[11] = (uint8_t)(running.current_steps);
+	data[12] = (uint8_t)(running.total_steps >> 24);
+	data[13] = (uint8_t)(running.total_steps >> 16);
+	data[14] = (uint8_t)(running.total_steps >> 8);
+	data[15] = (uint8_t)(running.total_steps);
+	Usart_SendArray(USART1, data, 16);
+	connectstatus = 0;
+	stepflag = 0;
 }

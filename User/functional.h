@@ -4,6 +4,7 @@
 #include "stm32f10x.h"
 #include "bsp_adc.h"
 #include "bsp_led.h"
+#include "bsp_usart.h"
 
 #define PRESSURE_FACTOR 0.45 //滤波系数
 #define BATTVOLT_FACTOR 0.3 //滤波系数
@@ -24,6 +25,17 @@ typedef struct Stepping {
 void FUNC_battSOC_caculation(void);
 void FUNC_functional_initial(void);
 void FUNC_step_counter(void);
+
+void Usart_binding_listen(void);
+void Usart_upload_listen(void);
+void Usart_binding_sendseed(void);
+void Usart_sendkey(void);
+void Usart_binding_receivekey(void);
+void Usart_receiveseed(void);
+void Usart_binding_receiveid(void);
+void Usart_sendsoc(void);
+void Usart_sendstep(void);
+void Usart_binding_verify(void);
 
 //延时函数
 static void delay_ms(uint16_t nms)

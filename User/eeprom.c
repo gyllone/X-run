@@ -1,9 +1,9 @@
 #include "eeprom.h"
 
-extern uint8_t eeprom_status;
+extern volatile uint8_t eeprom_status;
 extern struct rtc_time systmtime;
-extern uint8_t binding_flag;
-extern uint32_t app_id[3];
+extern volatile uint8_t binding_flag;
+extern volatile uint32_t app_id;
 extern volatile Step walking;
 extern volatile Step running;
 extern volatile float weight;
@@ -41,12 +41,10 @@ void EEP_initial_read(void) {
 		uint8_t bindbuffer[ACTIVE_STATUS_SIZE];
 		if (ee_ReadBytes(bindbuffer, ACTIVE_STATUS_ADDR, ACTIVE_STATUS_SIZE) > 0) {
 			binding_flag = bindbuffer[0];
-			app_id[0] = (uint32_t)bindbuffer[1] << 24 | (uint32_t)bindbuffer[2] << 16 | (uint32_t)bindbuffer[3] << 8 |
-									(uint32_t)bindbuffer[4];
-			app_id[1] = (uint32_t)bindbuffer[5] << 24 | (uint32_t)bindbuffer[6] << 16 | (uint32_t)bindbuffer[7] << 8 |
-									(uint32_t)bindbuffer[8];
-			app_id[2] = (uint32_t)bindbuffer[9] << 24 | (uint32_t)bindbuffer[10] << 16 | (uint32_t)bindbuffer[11] << 8 |
-									(uint32_t)bindbuffer[12];
+			if (binding_flag == 0x1A) {
+				app_id = (uint32_t)bindbuffer[1] << 24 | (uint32_t)bindbuffer[2] << 16 |
+								 (uint32_t)bindbuffer[3] << 8 | (uint32_t)bindbuffer[4];
+			}
     }
 		else {
 			eeprom_status = 1;
@@ -149,6 +147,25 @@ void EEP_initial_read(void) {
 		}
 	}
 }
+
+//绑定使用
+void EEP_binding_write(void) {
+	if (ee_CheckOk() > 0 && eeprom_status < 1) {
+		uint8_t data[ACTIVE_STATUS_SIZE];
+		data[0] = binding_flag;
+		data[1] = (uint8_t)(app_id >> 24);
+		data[2] = (uint8_t)(app_id >> 16);
+		data[3] = (uint8_t)(app_id >> 8);
+		data[4] = (uint8_t)app_id;
+		if (ee_WriteBytes(data, ACTIVE_STATUS_ADDR, ACTIVE_STATUS_SIZE) < 1) {
+			eeprom_status = 1;
+    }
+	}
+  else {
+		eeprom_status = 1;
+	}
+}
+
 //标定使用
 void EEP_weight_write(void) {
 		uint32_t bigweight = (uint32_t)(weight * 1000000000);
@@ -167,6 +184,7 @@ void EEP_weight_write(void) {
 			eeprom_status = 1;
 		}
 }
+
 //静置标定
 void EEP_hang_write(void) {
 		uint32_t bighang = (uint32_t)(hanging * 1000000000);
@@ -185,7 +203,8 @@ void EEP_hang_write(void) {
 		}
 }
 
-void EEP_walkstep_write(void) {
+//上传步数使用
+void EEP_step_write(void) {
 	uint8_t stepbuffer[CYCLE_WALKSTEP_SIZE] = { 0, 0, 0, 0 };
 	walking.current_steps = 0;
 	if (ee_CheckOk() > 0 && eeprom_status < 1) {
@@ -196,10 +215,7 @@ void EEP_walkstep_write(void) {
 	else {
 		eeprom_status = 1;
 	}
-}
 	
-void EEP_runstep_write(void) {
-	uint8_t stepbuffer[CYCLE_RUNSTEP_SIZE] = { 0, 0, 0, 0 };
 	running.current_steps = 0;
 	if (ee_CheckOk() > 0 && eeprom_status < 1) {
 		if (ee_WriteBytes(stepbuffer, CYCLE_RUNSTEP_ADDR, CYCLE_RUNSTEP_SIZE) < 1) {
@@ -211,6 +227,7 @@ void EEP_runstep_write(void) {
 	}
 }
 
+//休眠写E方
 void EEP_sleep_write(void) {
 	uint8_t stepbuffer[CYCLE_WALKSTEP_SIZE];
 	uint8_t totalstepbuffer[TOTAL_WALKSTEP_SIZE];

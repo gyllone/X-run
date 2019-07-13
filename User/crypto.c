@@ -1,10 +1,11 @@
 // @gyl
 #include "stm32f10x.h"
 #include "./rtc/bsp_date.h"
+#include "stm32f10x_rtc.h"
+#include "bsp_usart.h"
 
-extern struct rtc_time systmtime;
-
-static uint32_t Crypto_CalcOneKey(uint32_t security, uint32_t wSeed) {
+//通过Seed和安全算子security计算key
+uint32_t Crypto_CalcKey(uint32_t wSeed, uint32_t security) {
    uint8_t    iterations;
    uint32_t   wLastSeed;
    uint32_t   wTemp;
@@ -61,21 +62,10 @@ static uint32_t Crypto_CalcOneKey(uint32_t security, uint32_t wSeed) {
     return wTop31Bits;
 }
 
-// 通过Seed和安全算子security计算key
-// 一个seed对应一个security，总共3个seed，生成3个key
-// 当设备向app发送seed和key，设备计算key校验时，使用设备ID作为security
-// 当app向设备发送seed和key，app计算key校验时，使用app ID作为security
-void Crypto_CalcKey(uint32_t wSeed, uint32_t *keyset, uint32_t *securityset) {
-	uint8_t i;
-	for (i = 0; i < 3; i++) {
-		keyset[i] = Crypto_CalcOneKey(securityset[i], wSeed);
-	}
-}
-
 //线性同余法生成3个32位随机数
 void Crypto_Random(uint32_t *randseedset) {
 	uint8_t i;
-	randseedset[0] = mktimev(&systmtime);
+	randseedset[0] = RTC_GetCounter();
 	for (i = 0; i < 2; i++) {
 		randseedset[i + 1] = (randseedset[i] * 65793 + 4282663) % ((uint32_t)2 << 23);
 	}

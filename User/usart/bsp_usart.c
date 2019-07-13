@@ -72,7 +72,7 @@ void USART_Config(void)
 	NVIC_Configuration();
 	
 	// 使能串口接收中断
-	USART_ITConfig(DEBUG_USARTx, USART_IT_RXNE, ENABLE);	
+	USART_ITConfig(DEBUG_USARTx, USART_IT_RXNE, ENABLE);
 	
 	// 使能串口
 	USART_Cmd(DEBUG_USARTx, ENABLE);	    
@@ -157,4 +157,3 @@ int fgetc(FILE *f)
 
 		return (int)USART_ReceiveData(DEBUG_USARTx);
 }
-
