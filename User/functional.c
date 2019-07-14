@@ -61,7 +61,7 @@ void FUNC_battSOC_caculation(void) {
 //�����Գ�ʼ��
 void FUNC_functional_initial(void) {
 	uint8_t i;
-	for (i = 0; i < 30; i++) {
+	for (i = 0; i < 50; i++) {
 		FUNC_pressure_filter();
 		FUNC_battSOC_caculation();
 	}
@@ -69,14 +69,7 @@ void FUNC_functional_initial(void) {
 
 //cycle��ʱ�жϣ�����100������reset
 static void FUNC_overtime_reset(void) {
-	if (overtimecounter > 100) {
-		LED1_OFF;
-		LED2_OFF;
-		cyclelastflag = 0;
-		cycleflag = 0;
-		overtimecounter = 0;
-		cyclecounter = 0;
-	}
+	cyclelastflag = cycleflag;
 	if (cyclelastflag == 0 && cycleflag > 0) {
 		overtimecounter = 1;
 	}
@@ -86,7 +79,14 @@ static void FUNC_overtime_reset(void) {
 	else if (cyclelastflag > 4 && cycleflag == 0) {
 		overtimecounter = 0;
 	}
-	cyclelastflag = cycleflag;
+	if (overtimecounter > 200) {
+		LED1_OFF;
+		LED2_OFF;
+		cyclelastflag = 0;
+		cycleflag = 0;
+		overtimecounter = 0;
+		cyclecounter = 0;
+	}
 }
 	
 /*                    �Ʋ�ͼ��
@@ -110,7 +110,7 @@ static void FUNC_overtime_reset(void) {
 //stepflag = 0ʱ�����Ʋ�����
 void FUNC_step_counter(void) {
 	FUNC_pressure_filter();
-	if (stepflag < 1) {
+	if (stepflag) {
 		FUNC_overtime_reset();
 		switch (cycleflag) {
 			case 0:
@@ -131,7 +131,8 @@ void FUNC_step_counter(void) {
 					}
 				}
 				else if (pressure < running.threshold) {
-					cyclecounter = 0;
+					LED1_OFF;
+					cyclecounter = cyclecounter / 2;
 					cycleflag = 2;
 				}
 				break;
@@ -204,7 +205,7 @@ void Usart_upload_listen(void) {
 	//��Ҫ��ȫ����
 	else if (USART_ReceiveData(USART1) == 0x33) {
 		connectstatus = 3;
-		stepflag = 1;
+		stepflag = 0;
 	}
 }
 
@@ -293,7 +294,7 @@ void Usart_receiveseed(void) {
 	else {
 		connectstatus = 0;
 		receivecounter = 0;
-		stepflag = 0; //�Ʋ�����
+		stepflag = 1; //�Ʋ�����
 	}
 }
 
@@ -364,5 +365,5 @@ void Usart_sendstep(void) {
 	data[15] = (uint8_t)(running.total_steps);
 	Usart_SendArray(USART1, data, 16);
 	connectstatus = 0;
-	stepflag = 0;
+	stepflag = 1;
 }

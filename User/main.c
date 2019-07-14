@@ -41,14 +41,16 @@ volatile uint8_t stepflag = 1;
 
 //ÏµÍ³Ê±ï¿½ï¿½
 struct rtc_time systmtime = {
-	0, 0, 0, 7, 1, 2019, 0
+	0, 0, 0, 8, 1, 2019, 0
 };
 
 //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ú½ï¿½ï¿½Õ¼ï¿½ï¿½ï¿½
 uint8_t receivecounter = 0;
 //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×´Ì¬
 volatile uint8_t connectstatus = 0;
+
 static uint8_t lastconnectstatus = 0;
+static uint8_t overtimecounter = 0;
 
 void sendmessage(void) {
 	if (battsoc <= 5) {
@@ -67,7 +69,7 @@ void sendmessage(void) {
 				EEP_binding_write();
 				Usart_SendByte(USART1, 0xAA);
 				connectstatus = 0;
-				stepflag = 0;
+				stepflag = 1;
 				break;
 		}
 	}
@@ -84,15 +86,17 @@ void sendmessage(void) {
 			  EEP_step_write();
 			  break;
 			case 6:
+				weight = pressure;
 				EEP_weight_write();
 				Usart_SendByte(USART1, 0xAA);
 				connectstatus = 0;
-			  stepflag = 0;
+			  stepflag = 1;
 			case 7:
+				hanging = pressure * 0.98;
 				EEP_hang_write();
 			  Usart_SendByte(USART1, 0xAA);
 				connectstatus = 0;
-			  stepflag = 0;
+			  stepflag = 1;
 		}
 	}
 }
@@ -134,7 +138,7 @@ void receivemessage(void) {
 				}
 				else {
 					connectstatus = 0;
-					stepflag = 0;
+					stepflag = 1;
 				}
 				break;
 		}
@@ -143,12 +147,22 @@ void receivemessage(void) {
 
 void listen_reset(void) {
 	lastconnectstatus = connectstatus;
-	if (lastconnectstatus > 0 && connectstatus > 0) {
+	if (lastconnectstatus == 0 && connectstatus > 0) {
+		overtimecounter = 1;
+	}
+	else if (lastconnectstatus == 0 && connectstatus == 0) {
+		overtimecounter = 0;
+	}
+	else {
+		overtimecounter++;
+	}
+	if (overtimecounter > 5) {
+		overtimecounter = 0;
 		connectstatus = 0;
 		lastconnectstatus = 0;
 		receivecounter = 0;
 		if (binding_flag == 0x1A) {
-			stepflag = 0;
+			stepflag = 1;
 		}
 	}
 }
@@ -156,13 +170,7 @@ void listen_reset(void) {
 //RTCï¿½Ð¶Ï´ï¿½ï¿½ï¿½
 void RTC_IRQHandler(void)
 {
-	//ï¿½ï¿½ï¿½ï¿½ï¿½Ð¶ï¿½
-	if (RTC_GetITStatus(RTC_IT_ALR) != RESET)
-	{
-		RTC_ClearITPendingBit(RTC_IT_ALR);
-		RTC_WaitForLastTask();
-	}
-	//5sï¿½Ð¶ï¿½
+	//ÃëÖÐ¶Ï
 	if (RTC_GetITStatus(RTC_IT_SEC) != RESET) 
 	{
 		RTC_ClearITPendingBit(RTC_IT_SEC|RTC_IT_OW);
@@ -176,36 +184,15 @@ void RTC_IRQHandler(void)
 //ï¿½ï¿½ï¿½ï¿½ï¿½Ð¶Ï´ï¿½ï¿½ï¿½
 void USART1_IRQHandler(void) {
 	//ï¿½ï¿½ï¿½ï¿½ï¿½Ð¶ï¿½
-	 if(USART_GetITStatus(USART1, USART_IT_RXNE) != RESET) {
-		 USART_ClearITPendingBit(USART1, USART_IT_RXNE);
-		 receivemessage();
-	 }
- }	 
-
-//ï¿½ï¿½ï¿½ï¿½Í¹ï¿½ï¿½ï¿½Ä£Ê½ï¿½Ð¶ï¿½
-uint8_t SleepOrNot(void) {
-	//SOC = 0Ö±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
-	if (battsoc < 1) {
-		return 0;
+	if(USART_GetITStatus(USART1, USART_IT_RXNE) != RESET) {
+		USART_ClearITPendingBit(USART1, USART_IT_RXNE);
+		receivemessage();
 	}
-	//ï¿½ï¿½ï¿½ï¿½×´Ì¬Î¬ï¿½ï¿½10minï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
-	if (pressure > hanging && stepflag < 1) {
-		standingcounter++;
-		if (standingcounter > 6000) {
-			return 0;
-		}
-	}
-	else {
-		standingcounter = 0;
-	}
-	return 1;
 }
 
 void Initialization(void) {
   //ledï¿½ï¿½Ê¼ï¿½ï¿½
 	LED_GPIO_Config();
-	LED1_ON;
-	LED2_ON;
 	//adcï¿½ï¿½Ê¼ï¿½ï¿½
 	ADCx_Init();
 	//Ð¾Æ¬ID
@@ -216,21 +203,51 @@ void Initialization(void) {
 	USART_Config();
 	//ï¿½ï¿½ï¿½ï¿½ï¿½ë¹¦ï¿½Ü³ï¿½Ê¼ï¿½ï¿½
 	FUNC_functional_initial();
+	//ÊÇ·ñÊÇ´ÓstandyÖÐÍË³öµÄ
+	if(PWR_GetFlagStatus(PWR_FLAG_SB) != RESET) {
+		PWR_ClearFlag(PWR_FLAG_SB);
+		//Èç¹ûÈÔ´¦ÓÚÐü¸¡×´Ì¬£¬¼ÌÐøÐÝÃß
+		if (pressure > hanging) {
+			RTC_SetAlarm(RTC_GetCounter() + 25); //25sºó»½ÐÑ
+			RTC_WaitForLastTask();
+			IWDG_Feed();
+			IWDG_Config(IWDG_Prescaler_256 ,4095);
+			LEDDELAY;
+			PWR_EnterSTANDBYMode();
+		}
+	}
 	//Î´ï¿½ï¿½Ê±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ²ï¿½ï¿½ï¿½ï¿½ï¿½
 	if (binding_flag == 0x1A) {
-		stepflag = 0;
+		stepflag = 1;
 	}
-	//ï¿½ï¿½ï¿½Å¹ï¿½ï¿½ï¿½Ê¼ï¿½ï¿½
+	//¿´ÃÅ¹·³õÊ¼»¯
 	IWDG_Init();
-	IWDG_Config(IWDG_Prescaler_16, 250);//ï¿½ï¿½ï¿½Å¹ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½100ms
-	LED1_OFF;
-	LED2_OFF;
+	LEDDELAY;
+}
+
+//ï¿½ï¿½ï¿½ï¿½Í¹ï¿½ï¿½ï¿½Ä£Ê½ï¿½Ð¶ï¿½
+uint8_t SleepOrNot(void) {
+	//SOC = 0Ö±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+	if (battsoc < 1) {
+		return 0;
+	}
+	//¾²ÖÃ×´Ì¬ÏÂ25sºó½øÈë´ý»ú
+	if (pressure > hanging && stepflag) {
+		standingcounter++;
+		if (standingcounter > 5000) {
+			return 0;
+		}
+	}
+	else {
+		standingcounter = 0;
+	}
+	return 1;
 }
 
 int main(void)
 {	
 	Initialization();
-	//ï¿½ï¿½Ñ­ï¿½ï¿½10msÒ»ï¿½ï¿½
+	//ï¿½ï¿½Ñ­ï¿½ï¿½5msÒ»ï¿½ï¿½
 	while (SleepOrNot())
 	{
 		sendmessage();
@@ -238,17 +255,12 @@ int main(void)
 		IWDG_Feed();
 	}
 	EEP_sleep_write();
-	RTC_SetAlarm(RTC_GetCounter() + 420); //420sï¿½ï¿½ï¿½ï¿½
-	RTC_WaitForLastTask();
-	IWDG_Config(IWDG_Prescaler_256 ,65535); //ï¿½ï¿½ï¿½Å¹ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Îªï¿½ï¿½ï¿½
-	IWDG_Feed();
-	//ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½Ë¸Ò»ï¿½ï¿½
-	LED1_ON;
-	LED2_ON;
 	LEDDELAY;
-	LED1_OFF;
-	LED2_OFF;
-	//ï¿½ï¿½ï¿½ï¿½Í¹ï¿½ï¿½ï¿½Ä£Ê½
+	RTC_SetAlarm(RTC_GetCounter() + 25); //25sï¿½ï¿½ï¿½ï¿½
+	RTC_WaitForLastTask();
+	IWDG_Config(IWDG_Prescaler_256 ,4095); //ï¿½ï¿½ï¿½Å¹ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Îªï¿½ï¿½ï¿½
+	IWDG_Feed();
+	//½øÈëµÍ¹¦ºÄÄ£Ê½
 	PWR_EnterSTANDBYMode();
 }
 

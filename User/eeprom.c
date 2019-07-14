@@ -166,7 +166,7 @@ void EEP_binding_write(void) {
 	}
 }
 
-//标定使用
+//体重标定
 void EEP_weight_write(void) {
 		uint32_t bigweight = (uint32_t)(weight * 1000000000);
 		uint8_t weightchar[WEIGHT_PRESSURE_SIZE];

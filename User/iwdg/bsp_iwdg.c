@@ -50,10 +50,11 @@ void IWDG_Init(void)
   {
     RCC_ClearFlag();
 		IWDG_Feed();
-		IWDG_Config(IWDG_Prescaler_64 ,625);//看门狗超时1s溢出
+		IWDG_Config(IWDG_Prescaler_128 ,625);//看门狗超时2s溢出
   }
-  else
-  {
-  }
+	else {
+		IWDG_Config(IWDG_Prescaler_128 ,625);//看门狗超时2s溢出
+		IWDG_Feed();
+	}
 }
 /*********************************************END OF FILE**********************/
