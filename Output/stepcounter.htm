@@ -3,7 +3,7 @@
 <title>Static Call Graph - [..\..\Output\stepcounter.axf]</title></head>
 <body><HR>
 <H1>Static Call Graph for image ..\..\Output\stepcounter.axf</H1><HR>
-<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5050169: Last Updated: Mon Jul 15 02:38:37 2019
+<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5050169: Last Updated: Mon Jul 15 02:45:27 2019
 <BR><P>
 <H3>Maximum Stack Usage =        168 bytes + Unknown(Cycles, Untraceable Function Pointers)</H3><H3>
 Call chain for Maximum Stack Depth:</H3>
@@ -821,14 +821,14 @@ Global Symbols
 <BR><BR>[Called By]<UL><LI><a href="#[8b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;IWDG_Config
 </UL>
 
-<P><STRONG><a name="[94]"></a>Initialization</STRONG> (Thumb, 114 bytes, Stack size 8 bytes, main.o(i.Initialization))
+<P><STRONG><a name="[94]"></a>Initialization</STRONG> (Thumb, 108 bytes, Stack size 8 bytes, main.o(i.Initialization))
 <BR><BR>[Stack]<UL><LI>Max Depth = 152<LI>Call Chain = Initialization &rArr; EEP_initial_read &rArr; RTC_CheckAndConfig &rArr; Time_Adjust &rArr; GregorianDay
 </UL>
 <BR>[Calls]<UL><LI><a href="#[9b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;RTC_WaitForLastTask
 <LI><a href="#[9a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;RTC_SetAlarm
 <LI><a href="#[72]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;RTC_GetCounter
 <LI><a href="#[98]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PWR_GetFlagStatus
-<LI><a href="#[9d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PWR_EnterSTANDBYMode
+<LI><a href="#[9c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PWR_EnterSTANDBYMode
 <LI><a href="#[99]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PWR_ClearFlag
 <LI><a href="#[88]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_cfrcmple
 <LI><a href="#[97]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USART_Config
@@ -840,7 +840,7 @@ Global Symbols
 <LI><a href="#[83]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;FUNC_functional_initial
 <LI><a href="#[79]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;EEP_initial_read
 <LI><a href="#[5d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ADCx_Init
-<LI><a href="#[9c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;twinkle
+<LI><a href="#[9d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;twinkle
 </UL>
 <BR>[Called By]<UL><LI><a href="#[46]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
 </UL>
@@ -886,7 +886,7 @@ Global Symbols
 <BR><BR>[Called By]<UL><LI><a href="#[94]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Initialization
 </UL>
 
-<P><STRONG><a name="[9d]"></a>PWR_EnterSTANDBYMode</STRONG> (Thumb, 32 bytes, Stack size 0 bytes, stm32f10x_pwr.o(i.PWR_EnterSTANDBYMode))
+<P><STRONG><a name="[9c]"></a>PWR_EnterSTANDBYMode</STRONG> (Thumb, 32 bytes, Stack size 0 bytes, stm32f10x_pwr.o(i.PWR_EnterSTANDBYMode))
 <BR><BR>[Called By]<UL><LI><a href="#[46]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
 <LI><a href="#[94]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Initialization
 </UL>
@@ -1455,7 +1455,7 @@ Global Symbols
 <BR>[Calls]<UL><LI><a href="#[9b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;RTC_WaitForLastTask
 <LI><a href="#[9a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;RTC_SetAlarm
 <LI><a href="#[72]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;RTC_GetCounter
-<LI><a href="#[9d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PWR_EnterSTANDBYMode
+<LI><a href="#[9c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PWR_EnterSTANDBYMode
 <LI><a href="#[90]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;IWDG_Feed
 <LI><a href="#[8b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;IWDG_Config
 <LI><a href="#[85]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;FUNC_step_counter
@@ -1463,7 +1463,7 @@ Global Symbols
 <LI><a href="#[d8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;sendmessage
 <LI><a href="#[b3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;SleepOrNot
 <LI><a href="#[94]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Initialization
-<LI><a href="#[9c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;twinkle
+<LI><a href="#[9d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;twinkle
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> entry9a.o(.ARM.Collect$$$$0000000B)
 </UL>
@@ -1516,10 +1516,10 @@ Local Symbols
 </UL>
 
 <P><STRONG><a name="[d9]"></a>delay_ms</STRONG> (Thumb, 36 bytes, Stack size 0 bytes, main.o(i.delay_ms))
-<BR><BR>[Called By]<UL><LI><a href="#[9c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;twinkle
+<BR><BR>[Called By]<UL><LI><a href="#[9d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;twinkle
 </UL>
 
-<P><STRONG><a name="[9c]"></a>twinkle</STRONG> (Thumb, 48 bytes, Stack size 24 bytes, main.o(i.twinkle))
+<P><STRONG><a name="[9d]"></a>twinkle</STRONG> (Thumb, 48 bytes, Stack size 24 bytes, main.o(i.twinkle))
 <BR><BR>[Stack]<UL><LI>Max Depth = 24<LI>Call Chain = twinkle
 </UL>
 <BR>[Calls]<UL><LI><a href="#[d9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;delay_ms

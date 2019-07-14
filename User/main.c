@@ -212,7 +212,7 @@ void Initialization(void) {
 			RTC_WaitForLastTask();
 			IWDG_Feed();
 			IWDG_Config(IWDG_Prescaler_256 ,4095);
-			LEDDELAY;
+			//LEDDELAY;
 			PWR_EnterSTANDBYMode();
 		}
 	}
