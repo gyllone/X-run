@@ -22,20 +22,19 @@ typedef struct Stepping {
 	uint32_t total_steps;
 } Step;
 
-void FUNC_battSOC_caculation(void);
-void FUNC_functional_initial(void);
-void FUNC_step_counter(void);
+void FUNC_BattSOC_Caculation(void);
+void FUNC_Functional_Initial(void);
+void FUNC_Step_Counter(void);
 
-void Usart_binding_listen(void);
-void Usart_upload_listen(void);
-void Usart_binding_sendseed(void);
-void Usart_sendkey(void);
-void Usart_binding_receivekey(void);
-void Usart_receiveseed(void);
-void Usart_binding_receiveid(void);
-void Usart_sendsoc(void);
-void Usart_sendstep(void);
-void Usart_binding_verify(void);
+void FUNC_Binding_Listen(void);
+void FUNC_Upload_Listen(void);
+void FUNC_SendKey(void);
+void FUNC_ReceiveSeed(void);
+void FUNC_Binding_Receiveid(void);
+void FUNC_SendSoc(void);
+void FUNC_SendCurrentStep(void);
+void FUNC_SendTotalStep(void);
+uint8_t FUNC_Binding_Idchecksum(void);
 
 //ÑÓÊ±º¯Êý
 static void delay_ms(uint16_t nms)

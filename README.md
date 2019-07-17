@@ -2,10 +2,12 @@
 
 stepcounter implemented by STM32f103
 
-20190711更改点:
+# 硬件2.0更改点
 
-1. filter函数优化
+1. adc改成PB1和PB0
 
-2. SOC计算参数修改
+2. IIC改成PA11和PA12
 
-3. 调整部分参数值
+3. PA2控制蓝牙和E方电源（拉低断电）
+
+4. led换成PB12和PB13

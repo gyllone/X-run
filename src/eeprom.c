@@ -1,15 +1,16 @@
 #include "eeprom.h"
 
-extern volatile uint8_t eeprom_status;
-extern struct rtc_time systmtime;
-extern volatile uint8_t binding_flag;
 extern volatile uint32_t app_id;
-extern volatile Step walking;
-extern volatile Step running;
-extern volatile float weight;
-extern volatile float hanging;
+extern uint8_t eeprom_status;
+extern struct rtc_time systmtime;
+extern uint8_t binding_flag;
+extern Step walking;
+extern Step running;
+extern float weight;
+extern float hanging;
+extern float pressure;
 
-void EEP_initial_read(void) {
+void EEP_Initial_Read(void) {
 	uint8_t first_flash_flag = 0;
   if (ee_CheckOk() > 0) {
 		if (ee_ReadBytes(&first_flash_flag, FIRST_FLASH_ADDR, FIRST_FLASH_SIZE) < 1) {
@@ -149,14 +150,15 @@ void EEP_initial_read(void) {
 }
 
 //绑定使用
-void EEP_binding_write(void) {
+void EEP_Binding_Write(void) {
 	if (ee_CheckOk() > 0 && eeprom_status < 1) {
 		uint8_t data[ACTIVE_STATUS_SIZE];
+		uint32_t idbuffer = app_id;
 		data[0] = binding_flag;
-		data[1] = (uint8_t)(app_id >> 24);
-		data[2] = (uint8_t)(app_id >> 16);
-		data[3] = (uint8_t)(app_id >> 8);
-		data[4] = (uint8_t)app_id;
+		data[1] = (uint8_t)(idbuffer >> 24);
+		data[2] = (uint8_t)(idbuffer >> 16);
+		data[3] = (uint8_t)(idbuffer >> 8);
+		data[4] = (uint8_t)idbuffer;
 		if (ee_WriteBytes(data, ACTIVE_STATUS_ADDR, ACTIVE_STATUS_SIZE) < 1) {
 			eeprom_status = 1;
     }
@@ -167,44 +169,50 @@ void EEP_binding_write(void) {
 }
 
 //体重标定
-void EEP_weight_write(void) {
-		uint32_t bigweight = (uint32_t)(weight * 1000000000);
-		uint8_t weightchar[WEIGHT_PRESSURE_SIZE];
-		weightchar[0] = (uint8_t)(bigweight >> 24);
-		weightchar[1] = (uint8_t)(bigweight >> 16);
-		weightchar[2] = (uint8_t)(bigweight >> 8);
-		weightchar[3] = (uint8_t)bigweight;
+void EEP_Weight_Write(void) {
+	uint32_t bigweight;
+	uint8_t weightchar[WEIGHT_PRESSURE_SIZE];
+	weight = pressure;
+	walking.threshold = WALK_WEIGHT_RATIO * weight;
+	running.threshold = RUN_WEIGHT_RATIO * weight;
+	bigweight = (uint32_t)(weight * 1000000000);
+	weightchar[0] = (uint8_t)(bigweight >> 24);
+	weightchar[1] = (uint8_t)(bigweight >> 16);
+	weightchar[2] = (uint8_t)(bigweight >> 8);
+	weightchar[3] = (uint8_t)bigweight;
 	
-		if (ee_CheckOk() > 0 && eeprom_status < 1) {
-			if (ee_WriteBytes(weightchar, WEIGHT_PRESSURE_ADDR, WEIGHT_PRESSURE_SIZE) < 1) {
-				eeprom_status = 1;
-			}
-		}
-		else {
+	if (ee_CheckOk() > 0 && eeprom_status < 1) {
+		if (ee_WriteBytes(weightchar, WEIGHT_PRESSURE_ADDR, WEIGHT_PRESSURE_SIZE) < 1) {
 			eeprom_status = 1;
 		}
+	}
+	else {
+		eeprom_status = 1;
+	}
 }
 
 //静置标定
-void EEP_hang_write(void) {
-		uint32_t bighang = (uint32_t)(hanging * 1000000000);
-		uint8_t hangchar[WEIGHT_PRESSURE_SIZE];
-		hangchar[0] = (uint8_t)(bighang >> 24);
-		hangchar[1] = (uint8_t)(bighang >> 16);
-		hangchar[2] = (uint8_t)(bighang >> 8);
-		hangchar[3] = (uint8_t)bighang;
-		if (ee_CheckOk() > 0 && eeprom_status < 1) {
-			if (ee_WriteBytes(hangchar, WEIGHT_PRESSURE_ADDR, WEIGHT_PRESSURE_SIZE) < 1) {
-				eeprom_status = 1;
-			}
-		}
-		else {
+void EEP_Hang_Write(void) {
+	uint32_t bighang;
+	uint8_t hangchar[WEIGHT_PRESSURE_SIZE];
+	hanging = pressure * 0.98;
+	bighang = (uint32_t)(hanging * 1000000000);
+	hangchar[0] = (uint8_t)(bighang >> 24);
+	hangchar[1] = (uint8_t)(bighang >> 16);
+	hangchar[2] = (uint8_t)(bighang >> 8);
+	hangchar[3] = (uint8_t)bighang;
+	if (ee_CheckOk() > 0 && eeprom_status < 1) {
+		if (ee_WriteBytes(hangchar, WEIGHT_PRESSURE_ADDR, WEIGHT_PRESSURE_SIZE) < 1) {
 			eeprom_status = 1;
 		}
+	}
+	else {
+		eeprom_status = 1;
+	}
 }
 
 //上传步数使用
-void EEP_step_write(void) {
+void EEP_Step_Write(void) {
 	uint8_t stepbuffer[CYCLE_WALKSTEP_SIZE] = { 0, 0, 0, 0 };
 	walking.current_steps = 0;
 	if (ee_CheckOk() > 0 && eeprom_status < 1) {
@@ -228,7 +236,7 @@ void EEP_step_write(void) {
 }
 
 //休眠写E方
-void EEP_sleep_write(void) {
+void EEP_Sleep_Write(void) {
 	uint8_t stepbuffer[CYCLE_WALKSTEP_SIZE];
 	uint8_t totalstepbuffer[TOTAL_WALKSTEP_SIZE];
 	stepbuffer[0] = (uint8_t)(walking.current_steps >> 24);

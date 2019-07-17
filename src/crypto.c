@@ -61,12 +61,3 @@ uint32_t Crypto_CalcKey(uint32_t wSeed, uint32_t security) {
     wTop31Bits = wTop31Bits ^ security;  
     return wTop31Bits;
 }
-
-//线性同余法生成3个32位随机数
-void Crypto_Random(uint32_t *randseedset) {
-	uint8_t i;
-	randseedset[0] = RTC_GetCounter();
-	for (i = 0; i < 2; i++) {
-		randseedset[i + 1] = (randseedset[i] * 65793 + 4282663) % ((uint32_t)2 << 23);
-	}
-}

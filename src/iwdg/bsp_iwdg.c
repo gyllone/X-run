@@ -52,6 +52,7 @@ void IWDG_Init(void)
 		IWDG_Feed();
 		IWDG_Config(IWDG_Prescaler_128 ,625);//看门狗超时2s溢出
   }
+	// add by @gyl
 	else {
 		IWDG_Config(IWDG_Prescaler_128 ,625);//看门狗超时2s溢出
 		IWDG_Feed();

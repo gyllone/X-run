@@ -10,8 +10,8 @@
 #define    ADC_CLK                       RCC_APB2Periph_ADC1
 
 #define    ADC_GPIO_APBxClock_FUN        RCC_APB2PeriphClockCmd
-#define    ADC_GPIO_CLK                  RCC_APB2Periph_GPIOA  
-#define    ADC_PORT                      GPIOA
+#define    ADC_GPIO_CLK                  RCC_APB2Periph_GPIOB  
+#define    ADC_PORT                      GPIOB
 
 // 注意
 // 1-PC0 在指南者里面接的是蜂鸣器，默认被拉低
@@ -19,16 +19,16 @@
 // 所以 PC0 做 ADC 转换通道的时候，结果可能会有误差
 
 // 转换通道个数
-#define    NOFCHANEL										 3
+#define    NOFCHANEL										 2
 
-#define    ADC_PIN1                      GPIO_Pin_4
-#define    ADC_CHANNEL1                  ADC_Channel_4
+#define    ADC_PIN1                      GPIO_Pin_0
+#define    ADC_CHANNEL1                  ADC_Channel_1
 
-#define    ADC_PIN2                      GPIO_Pin_5
-#define    ADC_CHANNEL2                  ADC_Channel_5
+#define    ADC_PIN2                      GPIO_Pin_1
+#define    ADC_CHANNEL2                  ADC_Channel_2
 
-#define    ADC_PIN3                      GPIO_Pin_6
-#define    ADC_CHANNEL3                  ADC_Channel_6
+//#define    ADC_PIN3                      GPIO_Pin_6
+//#define    ADC_CHANNEL3                  ADC_Channel_6
 
 
 // ADC1 对应 DMA1通道1，ADC3对应DMA2通道5，ADC2没有DMA功能
