@@ -1,8 +1,5 @@
 // @gyl
 #include "stm32f10x.h"
-#include "./rtc/bsp_date.h"
-#include "stm32f10x_rtc.h"
-#include "bsp_usart.h"
 
 //通过Seed和安全算子security计算key
 uint32_t Crypto_CalcKey(uint32_t wSeed, uint32_t security) {

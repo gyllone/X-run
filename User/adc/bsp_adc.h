@@ -22,10 +22,10 @@
 #define    NOFCHANEL										 2
 
 #define    ADC_PIN1                      GPIO_Pin_0
-#define    ADC_CHANNEL1                  ADC_Channel_1
+#define    ADC_CHANNEL1                  ADC_Channel_8
 
 #define    ADC_PIN2                      GPIO_Pin_1
-#define    ADC_CHANNEL2                  ADC_Channel_2
+#define    ADC_CHANNEL2                  ADC_Channel_9
 
 //#define    ADC_PIN3                      GPIO_Pin_6
 //#define    ADC_CHANNEL3                  ADC_Channel_6

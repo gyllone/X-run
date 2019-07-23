@@ -4,13 +4,19 @@
 #include "stm32f10x.h"
 #include "bsp_adc.h"
 #include "bsp_led.h"
-#include "bsp_usart.h"
 
-#define PRESSURE_FACTOR 0.45 //滤波系数
-#define BATTVOLT_FACTOR 0.3 //滤波系数
+#define PRESSURE_FACTOR 0.55 //滤波系数
+#define BATTVOLT_FACTOR 0.05 //滤波系数
 
+#define HANG_RATIO 0.98 //静置压力比
 #define WALK_WEIGHT_RATIO 0.85 //走路压力比
-#define RUN_WEIGHT_RATIO 0.75 //跑步压力比
+#define RUN_WEIGHT_RATIO 0.65 //跑步压力比
+
+#define MIN_HANG 2.53
+#define MAX_HANG 2.57
+
+#define MIN_WEIGHT 1.85
+#define MAX_WEIGHT 2.25
 
 #define SAMPLEDELAY delay_ms(1); //隔1ms读一次电压
 #define LEDDELAY twinkle(100);
@@ -22,19 +28,10 @@ typedef struct Stepping {
 	uint32_t total_steps;
 } Step;
 
+uint8_t FUNC_SleepOrNot(void);
 void FUNC_BattSOC_Caculation(void);
 void FUNC_Functional_Initial(void);
 void FUNC_Step_Counter(void);
-
-void FUNC_Binding_Listen(void);
-void FUNC_Upload_Listen(void);
-void FUNC_SendKey(void);
-void FUNC_ReceiveSeed(void);
-void FUNC_Binding_Receiveid(void);
-void FUNC_SendSoc(void);
-void FUNC_SendCurrentStep(void);
-void FUNC_SendTotalStep(void);
-uint8_t FUNC_Binding_Idchecksum(void);
 
 //延时函数
 static void delay_ms(uint16_t nms)

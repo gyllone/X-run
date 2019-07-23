@@ -719,6 +719,11 @@
               <FileType>1</FileType>
               <FilePath>..\..\User\eeprom.c</FilePath>
             </File>
+            <File>
+              <FileName>communication.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\User\communication.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

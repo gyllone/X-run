@@ -234,7 +234,7 @@ uint8_t ee_Erase(void)
 	}
 	else
 	{
-		return 0;
+		return 1;
 	}
 }
 
