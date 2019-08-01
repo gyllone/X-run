@@ -705,11 +705,6 @@
               <FilePath>..\..\User\chipid\bsp_chipid.c</FilePath>
             </File>
             <File>
-              <FileName>crypto.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\User\crypto.c</FilePath>
-            </File>
-            <File>
               <FileName>functional.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\User\functional.c</FilePath>

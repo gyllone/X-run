@@ -701,7 +701,7 @@ I (..\..\Libraries\FWlib\inc\stm32f10x_spi.h)(0x5D2EE865)
 I (..\..\Libraries\FWlib\inc\stm32f10x_tim.h)(0x5D2EE865)
 I (..\..\Libraries\FWlib\inc\stm32f10x_usart.h)(0x5D2EE865)
 I (..\..\Libraries\FWlib\inc\misc.h)(0x5D2EE864)
-F (..\..\User\main.c)(0x5D36E6FA)(-c --cpu Cortex-M3 -D__MICROLIB -g -O3 --apcs=interwork --split_sections -I..\..\Libraries\CMSIS -I..\..\User -I..\..\Libraries\FWlib\inc -I..\..\User\led -I..\..\User\adc -I..\..\User\AT24C16 -I..\..\User\rtc -I..\..\User\usart -I..\..\User\iwdg -I..\..\User\chipid-I C:\Users\lone\Desktop\stepcounter_v2\Project\RVMDK£¨uv5£©\RTE-I D:\Keil_v5\ARM\PACK\Keil\STM32F1xx_DFP\1.1.0\Device\Include-I D:\Keil_v5\ARM\CMSIS\Include-I D:\Keil_v5\ARM\PACK\Keil\STM32F1xx_DFP\1.1.0-D__UVISION_VERSION="515" -DSTM32F10X_MD -DUSE_STDPERIPH_DRIVER-o ..\..\output\main.o --omf_browse ..\..\output\main.crf --depend ..\..\output\main.d)
+F (..\..\User\main.c)(0x5D3EB209)(-c --cpu Cortex-M3 -D__MICROLIB -g -O3 --apcs=interwork --split_sections -I..\..\Libraries\CMSIS -I..\..\User -I..\..\Libraries\FWlib\inc -I..\..\User\led -I..\..\User\adc -I..\..\User\AT24C16 -I..\..\User\rtc -I..\..\User\usart -I..\..\User\iwdg -I..\..\User\chipid-I C:\Users\lone\Desktop\stepcounter_v2\Project\RVMDK£¨uv5£©\RTE-I D:\Keil_v5\ARM\PACK\Keil\STM32F1xx_DFP\1.1.0\Device\Include-I D:\Keil_v5\ARM\CMSIS\Include-I D:\Keil_v5\ARM\PACK\Keil\STM32F1xx_DFP\1.1.0-D__UVISION_VERSION="515" -DSTM32F10X_MD -DUSE_STDPERIPH_DRIVER-o ..\..\output\main.o --omf_browse ..\..\output\main.crf --depend ..\..\output\main.d)
 I (..\..\Libraries\CMSIS\stm32f10x.h)(0x5D2EE864)
 I (..\..\Libraries\CMSIS\core_cm3.h)(0x5D2EE864)
 I (D:\Keil_v5\ARM\ARMCC\include\stdint.h)(0x54C245B8)
@@ -731,7 +731,7 @@ I (..\..\Libraries\FWlib\inc\stm32f10x_usart.h)(0x5D2EE865)
 I (..\..\Libraries\FWlib\inc\stm32f10x_wwdg.h)(0x5D2EE865)
 I (..\..\Libraries\FWlib\inc\misc.h)(0x5D2EE864)
 I (..\..\User\led\bsp_led.h)(0x5D2EE86A)
-I (..\..\User\adc\bsp_adc.h)(0x5D32CAA3)
+I (..\..\User\adc\bsp_adc.h)(0x5D3D708A)
 I (..\..\User\AT24C16\bsp_i2c_ee.h)(0x5D2EE86A)
 I (..\..\User\AT24C16\bsp_i2c_gpio.h)(0x5D2EE86A)
 I (D:\Keil_v5\ARM\ARMCC\include\inttypes.h)(0x54C245B8)
@@ -742,9 +742,9 @@ I (..\..\User\usart\bsp_usart.h)(0x5D2EE866)
 I (D:\Keil_v5\ARM\ARMCC\include\stdio.h)(0x54C245B8)
 I (..\..\User\iwdg\bsp_iwdg.h)(0x5D2EE866)
 I (..\..\User\chipid\bsp_chipid.h)(0x5D2EE866)
-I (..\..\User\eeprom.h)(0x5D36D8D9)
-I (..\..\User\functional.h)(0x5D36E499)
-I (..\..\User\communication.h)(0x5D36DD7D)
+I (..\..\User\eeprom.h)(0x5D3C7EB1)
+I (..\..\User\functional.h)(0x5D3EAAF7)
+I (..\..\User\communication.h)(0x5D3C7E25)
 F (..\..\User\stm32f10x_conf.h)(0x5D2EE866)()
 F (..\..\User\stm32f10x_it.c)(0x5D2EE866)(-c --cpu Cortex-M3 -D__MICROLIB -g -O3 --apcs=interwork --split_sections -I..\..\Libraries\CMSIS -I..\..\User -I..\..\Libraries\FWlib\inc -I..\..\User\led -I..\..\User\adc -I..\..\User\AT24C16 -I..\..\User\rtc -I..\..\User\usart -I..\..\User\iwdg -I..\..\User\chipid-I C:\Users\lone\Desktop\stepcounter_v2\Project\RVMDK£¨uv5£©\RTE-I D:\Keil_v5\ARM\PACK\Keil\STM32F1xx_DFP\1.1.0\Device\Include-I D:\Keil_v5\ARM\CMSIS\Include-I D:\Keil_v5\ARM\PACK\Keil\STM32F1xx_DFP\1.1.0-D__UVISION_VERSION="515" -DSTM32F10X_MD -DUSE_STDPERIPH_DRIVER-o ..\..\output\stm32f10x_it.o --omf_browse ..\..\output\stm32f10x_it.crf --depend ..\..\output\stm32f10x_it.d)
 I (..\..\User\stm32f10x_it.h)(0x5D2EE866)
@@ -807,8 +807,8 @@ I (..\..\Libraries\FWlib\inc\stm32f10x_tim.h)(0x5D2EE865)
 I (..\..\Libraries\FWlib\inc\stm32f10x_usart.h)(0x5D2EE865)
 I (..\..\Libraries\FWlib\inc\stm32f10x_wwdg.h)(0x5D2EE865)
 I (..\..\Libraries\FWlib\inc\misc.h)(0x5D2EE864)
-F (..\..\User\adc\bsp_adc.c)(0x5D2EE86A)(-c --cpu Cortex-M3 -D__MICROLIB -g -O3 --apcs=interwork --split_sections -I..\..\Libraries\CMSIS -I..\..\User -I..\..\Libraries\FWlib\inc -I..\..\User\led -I..\..\User\adc -I..\..\User\AT24C16 -I..\..\User\rtc -I..\..\User\usart -I..\..\User\iwdg -I..\..\User\chipid-I C:\Users\lone\Desktop\stepcounter_v2\Project\RVMDK£¨uv5£©\RTE-I D:\Keil_v5\ARM\PACK\Keil\STM32F1xx_DFP\1.1.0\Device\Include-I D:\Keil_v5\ARM\CMSIS\Include-I D:\Keil_v5\ARM\PACK\Keil\STM32F1xx_DFP\1.1.0-D__UVISION_VERSION="515" -DSTM32F10X_MD -DUSE_STDPERIPH_DRIVER-o ..\..\output\bsp_adc.o --omf_browse ..\..\output\bsp_adc.crf --depend ..\..\output\bsp_adc.d)
-I (..\..\User\adc\bsp_adc.h)(0x5D32CAA3)
+F (..\..\User\adc\bsp_adc.c)(0x5D3DB4FF)(-c --cpu Cortex-M3 -D__MICROLIB -g -O3 --apcs=interwork --split_sections -I..\..\Libraries\CMSIS -I..\..\User -I..\..\Libraries\FWlib\inc -I..\..\User\led -I..\..\User\adc -I..\..\User\AT24C16 -I..\..\User\rtc -I..\..\User\usart -I..\..\User\iwdg -I..\..\User\chipid-I C:\Users\lone\Desktop\stepcounter_v2\Project\RVMDK£¨uv5£©\RTE-I D:\Keil_v5\ARM\PACK\Keil\STM32F1xx_DFP\1.1.0\Device\Include-I D:\Keil_v5\ARM\CMSIS\Include-I D:\Keil_v5\ARM\PACK\Keil\STM32F1xx_DFP\1.1.0-D__UVISION_VERSION="515" -DSTM32F10X_MD -DUSE_STDPERIPH_DRIVER-o ..\..\output\bsp_adc.o --omf_browse ..\..\output\bsp_adc.crf --depend ..\..\output\bsp_adc.d)
+I (..\..\User\adc\bsp_adc.h)(0x5D3D708A)
 I (..\..\Libraries\CMSIS\stm32f10x.h)(0x5D2EE864)
 I (..\..\Libraries\CMSIS\core_cm3.h)(0x5D2EE864)
 I (D:\Keil_v5\ARM\ARMCC\include\stdint.h)(0x54C245B8)
@@ -991,7 +991,7 @@ I (..\..\Libraries\FWlib\inc\stm32f10x_tim.h)(0x5D2EE865)
 I (..\..\Libraries\FWlib\inc\stm32f10x_usart.h)(0x5D2EE865)
 I (..\..\Libraries\FWlib\inc\stm32f10x_wwdg.h)(0x5D2EE865)
 I (..\..\Libraries\FWlib\inc\misc.h)(0x5D2EE864)
-F (..\..\User\rtc\bsp_rtc.c)(0x5D36A737)(-c --cpu Cortex-M3 -D__MICROLIB -g -O3 --apcs=interwork --split_sections -I..\..\Libraries\CMSIS -I..\..\User -I..\..\Libraries\FWlib\inc -I..\..\User\led -I..\..\User\adc -I..\..\User\AT24C16 -I..\..\User\rtc -I..\..\User\usart -I..\..\User\iwdg -I..\..\User\chipid-I C:\Users\lone\Desktop\stepcounter_v2\Project\RVMDK£¨uv5£©\RTE-I D:\Keil_v5\ARM\PACK\Keil\STM32F1xx_DFP\1.1.0\Device\Include-I D:\Keil_v5\ARM\CMSIS\Include-I D:\Keil_v5\ARM\PACK\Keil\STM32F1xx_DFP\1.1.0-D__UVISION_VERSION="515" -DSTM32F10X_MD -DUSE_STDPERIPH_DRIVER-o ..\..\output\bsp_rtc.o --omf_browse ..\..\output\bsp_rtc.crf --depend ..\..\output\bsp_rtc.d)
+F (..\..\User\rtc\bsp_rtc.c)(0x5D3EA9EC)(-c --cpu Cortex-M3 -D__MICROLIB -g -O3 --apcs=interwork --split_sections -I..\..\Libraries\CMSIS -I..\..\User -I..\..\Libraries\FWlib\inc -I..\..\User\led -I..\..\User\adc -I..\..\User\AT24C16 -I..\..\User\rtc -I..\..\User\usart -I..\..\User\iwdg -I..\..\User\chipid-I C:\Users\lone\Desktop\stepcounter_v2\Project\RVMDK£¨uv5£©\RTE-I D:\Keil_v5\ARM\PACK\Keil\STM32F1xx_DFP\1.1.0\Device\Include-I D:\Keil_v5\ARM\CMSIS\Include-I D:\Keil_v5\ARM\PACK\Keil\STM32F1xx_DFP\1.1.0-D__UVISION_VERSION="515" -DSTM32F10X_MD -DUSE_STDPERIPH_DRIVER-o ..\..\output\bsp_rtc.o --omf_browse ..\..\output\bsp_rtc.crf --depend ..\..\output\bsp_rtc.d)
 I (..\..\User\./rtc/bsp_rtc.h)(0x5D2EE866)
 I (..\..\Libraries\CMSIS\stm32f10x.h)(0x5D2EE864)
 I (..\..\Libraries\CMSIS\core_cm3.h)(0x5D2EE864)
@@ -1023,7 +1023,7 @@ I (..\..\Libraries\FWlib\inc\stm32f10x_wwdg.h)(0x5D2EE865)
 I (..\..\Libraries\FWlib\inc\misc.h)(0x5D2EE864)
 I (..\..\User\./rtc/bsp_calendar.h)(0x5D2EE866)
 I (..\..\User\./rtc/bsp_date.h)(0x5D2EE866)
-F (..\..\User\iwdg\bsp_iwdg.c)(0x5D2EE86A)(-c --cpu Cortex-M3 -D__MICROLIB -g -O3 --apcs=interwork --split_sections -I..\..\Libraries\CMSIS -I..\..\User -I..\..\Libraries\FWlib\inc -I..\..\User\led -I..\..\User\adc -I..\..\User\AT24C16 -I..\..\User\rtc -I..\..\User\usart -I..\..\User\iwdg -I..\..\User\chipid-I C:\Users\lone\Desktop\stepcounter_v2\Project\RVMDK£¨uv5£©\RTE-I D:\Keil_v5\ARM\PACK\Keil\STM32F1xx_DFP\1.1.0\Device\Include-I D:\Keil_v5\ARM\CMSIS\Include-I D:\Keil_v5\ARM\PACK\Keil\STM32F1xx_DFP\1.1.0-D__UVISION_VERSION="515" -DSTM32F10X_MD -DUSE_STDPERIPH_DRIVER-o ..\..\output\bsp_iwdg.o --omf_browse ..\..\output\bsp_iwdg.crf --depend ..\..\output\bsp_iwdg.d)
+F (..\..\User\iwdg\bsp_iwdg.c)(0x5D3C3255)(-c --cpu Cortex-M3 -D__MICROLIB -g -O3 --apcs=interwork --split_sections -I..\..\Libraries\CMSIS -I..\..\User -I..\..\Libraries\FWlib\inc -I..\..\User\led -I..\..\User\adc -I..\..\User\AT24C16 -I..\..\User\rtc -I..\..\User\usart -I..\..\User\iwdg -I..\..\User\chipid-I C:\Users\lone\Desktop\stepcounter_v2\Project\RVMDK£¨uv5£©\RTE-I D:\Keil_v5\ARM\PACK\Keil\STM32F1xx_DFP\1.1.0\Device\Include-I D:\Keil_v5\ARM\CMSIS\Include-I D:\Keil_v5\ARM\PACK\Keil\STM32F1xx_DFP\1.1.0-D__UVISION_VERSION="515" -DSTM32F10X_MD -DUSE_STDPERIPH_DRIVER-o ..\..\output\bsp_iwdg.o --omf_browse ..\..\output\bsp_iwdg.crf --depend ..\..\output\bsp_iwdg.d)
 I (..\..\User\iwdg\bsp_iwdg.h)(0x5D2EE866)
 I (..\..\Libraries\CMSIS\stm32f10x.h)(0x5D2EE864)
 I (..\..\Libraries\CMSIS\core_cm3.h)(0x5D2EE864)
@@ -1083,7 +1083,8 @@ I (..\..\Libraries\FWlib\inc\stm32f10x_tim.h)(0x5D2EE865)
 I (..\..\Libraries\FWlib\inc\stm32f10x_usart.h)(0x5D2EE865)
 I (..\..\Libraries\FWlib\inc\stm32f10x_wwdg.h)(0x5D2EE865)
 I (..\..\Libraries\FWlib\inc\misc.h)(0x5D2EE864)
-F (..\..\User\crypto.c)(0x5D35EBED)(-c --cpu Cortex-M3 -D__MICROLIB -g -O3 --apcs=interwork --split_sections -I..\..\Libraries\CMSIS -I..\..\User -I..\..\Libraries\FWlib\inc -I..\..\User\led -I..\..\User\adc -I..\..\User\AT24C16 -I..\..\User\rtc -I..\..\User\usart -I..\..\User\iwdg -I..\..\User\chipid-I C:\Users\lone\Desktop\stepcounter_v2\Project\RVMDK£¨uv5£©\RTE-I D:\Keil_v5\ARM\PACK\Keil\STM32F1xx_DFP\1.1.0\Device\Include-I D:\Keil_v5\ARM\CMSIS\Include-I D:\Keil_v5\ARM\PACK\Keil\STM32F1xx_DFP\1.1.0-D__UVISION_VERSION="515" -DSTM32F10X_MD -DUSE_STDPERIPH_DRIVER-o ..\..\output\crypto.o --omf_browse ..\..\output\crypto.crf --depend ..\..\output\crypto.d)
+F (..\..\User\functional.c)(0x5D3EB229)(-c --cpu Cortex-M3 -D__MICROLIB -g -O3 --apcs=interwork --split_sections -I..\..\Libraries\CMSIS -I..\..\User -I..\..\Libraries\FWlib\inc -I..\..\User\led -I..\..\User\adc -I..\..\User\AT24C16 -I..\..\User\rtc -I..\..\User\usart -I..\..\User\iwdg -I..\..\User\chipid-I C:\Users\lone\Desktop\stepcounter_v2\Project\RVMDK£¨uv5£©\RTE-I D:\Keil_v5\ARM\PACK\Keil\STM32F1xx_DFP\1.1.0\Device\Include-I D:\Keil_v5\ARM\CMSIS\Include-I D:\Keil_v5\ARM\PACK\Keil\STM32F1xx_DFP\1.1.0-D__UVISION_VERSION="515" -DSTM32F10X_MD -DUSE_STDPERIPH_DRIVER-o ..\..\output\functional.o --omf_browse ..\..\output\functional.crf --depend ..\..\output\functional.d)
+I (..\..\User\functional.h)(0x5D3EAAF7)
 I (..\..\Libraries\CMSIS\stm32f10x.h)(0x5D2EE864)
 I (..\..\Libraries\CMSIS\core_cm3.h)(0x5D2EE864)
 I (D:\Keil_v5\ARM\ARMCC\include\stdint.h)(0x54C245B8)
@@ -1112,40 +1113,17 @@ I (..\..\Libraries\FWlib\inc\stm32f10x_tim.h)(0x5D2EE865)
 I (..\..\Libraries\FWlib\inc\stm32f10x_usart.h)(0x5D2EE865)
 I (..\..\Libraries\FWlib\inc\stm32f10x_wwdg.h)(0x5D2EE865)
 I (..\..\Libraries\FWlib\inc\misc.h)(0x5D2EE864)
-F (..\..\User\functional.c)(0x5D36E4A8)(-c --cpu Cortex-M3 -D__MICROLIB -g -O3 --apcs=interwork --split_sections -I..\..\Libraries\CMSIS -I..\..\User -I..\..\Libraries\FWlib\inc -I..\..\User\led -I..\..\User\adc -I..\..\User\AT24C16 -I..\..\User\rtc -I..\..\User\usart -I..\..\User\iwdg -I..\..\User\chipid-I C:\Users\lone\Desktop\stepcounter_v2\Project\RVMDK£¨uv5£©\RTE-I D:\Keil_v5\ARM\PACK\Keil\STM32F1xx_DFP\1.1.0\Device\Include-I D:\Keil_v5\ARM\CMSIS\Include-I D:\Keil_v5\ARM\PACK\Keil\STM32F1xx_DFP\1.1.0-D__UVISION_VERSION="515" -DSTM32F10X_MD -DUSE_STDPERIPH_DRIVER-o ..\..\output\functional.o --omf_browse ..\..\output\functional.crf --depend ..\..\output\functional.d)
-I (..\..\User\functional.h)(0x5D36E499)
-I (..\..\Libraries\CMSIS\stm32f10x.h)(0x5D2EE864)
-I (..\..\Libraries\CMSIS\core_cm3.h)(0x5D2EE864)
-I (D:\Keil_v5\ARM\ARMCC\include\stdint.h)(0x54C245B8)
-I (..\..\Libraries\CMSIS\system_stm32f10x.h)(0x5D2EE864)
-I (..\..\User\stm32f10x_conf.h)(0x5D2EE866)
-I (..\..\Libraries\FWlib\inc\stm32f10x_adc.h)(0x5D2EE864)
-I (..\..\Libraries\FWlib\inc\stm32f10x_bkp.h)(0x5D2EE864)
-I (..\..\Libraries\FWlib\inc\stm32f10x_can.h)(0x5D2EE865)
-I (..\..\Libraries\FWlib\inc\stm32f10x_cec.h)(0x5D2EE865)
-I (..\..\Libraries\FWlib\inc\stm32f10x_crc.h)(0x5D2EE865)
-I (..\..\Libraries\FWlib\inc\stm32f10x_dac.h)(0x5D2EE865)
-I (..\..\Libraries\FWlib\inc\stm32f10x_dbgmcu.h)(0x5D2EE865)
-I (..\..\Libraries\FWlib\inc\stm32f10x_dma.h)(0x5D2EE865)
-I (..\..\Libraries\FWlib\inc\stm32f10x_exti.h)(0x5D2EE865)
-I (..\..\Libraries\FWlib\inc\stm32f10x_flash.h)(0x5D2EE865)
-I (..\..\Libraries\FWlib\inc\stm32f10x_fsmc.h)(0x5D2EE865)
-I (..\..\Libraries\FWlib\inc\stm32f10x_gpio.h)(0x5D2EE865)
-I (..\..\Libraries\FWlib\inc\stm32f10x_i2c.h)(0x5D2EE865)
-I (..\..\Libraries\FWlib\inc\stm32f10x_iwdg.h)(0x5D2EE865)
-I (..\..\Libraries\FWlib\inc\stm32f10x_pwr.h)(0x5D2EE865)
-I (..\..\Libraries\FWlib\inc\stm32f10x_rcc.h)(0x5D2EE865)
-I (..\..\Libraries\FWlib\inc\stm32f10x_rtc.h)(0x5D2EE865)
-I (..\..\Libraries\FWlib\inc\stm32f10x_sdio.h)(0x5D2EE865)
-I (..\..\Libraries\FWlib\inc\stm32f10x_spi.h)(0x5D2EE865)
-I (..\..\Libraries\FWlib\inc\stm32f10x_tim.h)(0x5D2EE865)
-I (..\..\Libraries\FWlib\inc\stm32f10x_usart.h)(0x5D2EE865)
-I (..\..\Libraries\FWlib\inc\stm32f10x_wwdg.h)(0x5D2EE865)
-I (..\..\Libraries\FWlib\inc\misc.h)(0x5D2EE864)
-I (..\..\User\adc\bsp_adc.h)(0x5D32CAA3)
 I (..\..\User\led\bsp_led.h)(0x5D2EE86A)
-F (..\..\User\eeprom.c)(0x5D36D9B4)(-c --cpu Cortex-M3 -D__MICROLIB -g -O3 --apcs=interwork --split_sections -I..\..\Libraries\CMSIS -I..\..\User -I..\..\Libraries\FWlib\inc -I..\..\User\led -I..\..\User\adc -I..\..\User\AT24C16 -I..\..\User\rtc -I..\..\User\usart -I..\..\User\iwdg -I..\..\User\chipid-I C:\Users\lone\Desktop\stepcounter_v2\Project\RVMDK£¨uv5£©\RTE-I D:\Keil_v5\ARM\PACK\Keil\STM32F1xx_DFP\1.1.0\Device\Include-I D:\Keil_v5\ARM\CMSIS\Include-I D:\Keil_v5\ARM\PACK\Keil\STM32F1xx_DFP\1.1.0-D__UVISION_VERSION="515" -DSTM32F10X_MD -DUSE_STDPERIPH_DRIVER-o ..\..\output\eeprom.o --omf_browse ..\..\output\eeprom.crf --depend ..\..\output\eeprom.d)
-I (..\..\User\eeprom.h)(0x5D36D8D9)
+I (..\..\User\adc\bsp_adc.h)(0x5D3D708A)
+I (D:\Keil_v5\ARM\ARMCC\include\math.h)(0x54C245B8)
+I (..\..\User\eeprom.h)(0x5D3C7EB1)
+I (..\..\User\AT24C16\bsp_i2c_ee.h)(0x5D2EE86A)
+I (..\..\User\trigonometric.h)(0x5D3DB290)
+I (..\..\User\communication.h)(0x5D3C7E25)
+I (..\..\User\usart\bsp_usart.h)(0x5D2EE866)
+I (D:\Keil_v5\ARM\ARMCC\include\stdio.h)(0x54C245B8)
+F (..\..\User\eeprom.c)(0x5D3EA9AB)(-c --cpu Cortex-M3 -D__MICROLIB -g -O3 --apcs=interwork --split_sections -I..\..\Libraries\CMSIS -I..\..\User -I..\..\Libraries\FWlib\inc -I..\..\User\led -I..\..\User\adc -I..\..\User\AT24C16 -I..\..\User\rtc -I..\..\User\usart -I..\..\User\iwdg -I..\..\User\chipid-I C:\Users\lone\Desktop\stepcounter_v2\Project\RVMDK£¨uv5£©\RTE-I D:\Keil_v5\ARM\PACK\Keil\STM32F1xx_DFP\1.1.0\Device\Include-I D:\Keil_v5\ARM\CMSIS\Include-I D:\Keil_v5\ARM\PACK\Keil\STM32F1xx_DFP\1.1.0-D__UVISION_VERSION="515" -DSTM32F10X_MD -DUSE_STDPERIPH_DRIVER-o ..\..\output\eeprom.o --omf_browse ..\..\output\eeprom.crf --depend ..\..\output\eeprom.d)
+I (..\..\User\eeprom.h)(0x5D3C7EB1)
 I (..\..\Libraries\CMSIS\stm32f10x.h)(0x5D2EE864)
 I (..\..\Libraries\CMSIS\core_cm3.h)(0x5D2EE864)
 I (D:\Keil_v5\ARM\ARMCC\include\stdint.h)(0x54C245B8)
@@ -1178,15 +1156,13 @@ I (..\..\User\AT24C16\bsp_i2c_ee.h)(0x5D2EE86A)
 I (..\..\User\rtc\bsp_rtc.h)(0x5D2EE866)
 I (..\..\User\./rtc/bsp_calendar.h)(0x5D2EE866)
 I (..\..\User\./rtc/bsp_date.h)(0x5D2EE866)
-I (..\..\User\functional.h)(0x5D36E499)
-I (..\..\User\adc\bsp_adc.h)(0x5D32CAA3)
+I (..\..\User\functional.h)(0x5D3EAAF7)
 I (..\..\User\led\bsp_led.h)(0x5D2EE86A)
-I (..\..\User\communication.h)(0x5D36DD7D)
+I (..\..\User\communication.h)(0x5D3C7E25)
 I (..\..\User\usart\bsp_usart.h)(0x5D2EE866)
 I (D:\Keil_v5\ARM\ARMCC\include\stdio.h)(0x54C245B8)
-F (..\..\User\communication.c)(0x5D36E545)(-c --cpu Cortex-M3 -D__MICROLIB -g -O3 --apcs=interwork --split_sections -I..\..\Libraries\CMSIS -I..\..\User -I..\..\Libraries\FWlib\inc -I..\..\User\led -I..\..\User\adc -I..\..\User\AT24C16 -I..\..\User\rtc -I..\..\User\usart -I..\..\User\iwdg -I..\..\User\chipid-I C:\Users\lone\Desktop\stepcounter_v2\Project\RVMDK£¨uv5£©\RTE-I D:\Keil_v5\ARM\PACK\Keil\STM32F1xx_DFP\1.1.0\Device\Include-I D:\Keil_v5\ARM\CMSIS\Include-I D:\Keil_v5\ARM\PACK\Keil\STM32F1xx_DFP\1.1.0-D__UVISION_VERSION="515" -DSTM32F10X_MD -DUSE_STDPERIPH_DRIVER-o ..\..\output\communication.o --omf_browse ..\..\output\communication.crf --depend ..\..\output\communication.d)
-I (..\..\User\communication.h)(0x5D36DD7D)
-I (..\..\User\functional.h)(0x5D36E499)
+F (..\..\User\communication.c)(0x5D3EAE41)(-c --cpu Cortex-M3 -D__MICROLIB -g -O3 --apcs=interwork --split_sections -I..\..\Libraries\CMSIS -I..\..\User -I..\..\Libraries\FWlib\inc -I..\..\User\led -I..\..\User\adc -I..\..\User\AT24C16 -I..\..\User\rtc -I..\..\User\usart -I..\..\User\iwdg -I..\..\User\chipid-I C:\Users\lone\Desktop\stepcounter_v2\Project\RVMDK£¨uv5£©\RTE-I D:\Keil_v5\ARM\PACK\Keil\STM32F1xx_DFP\1.1.0\Device\Include-I D:\Keil_v5\ARM\CMSIS\Include-I D:\Keil_v5\ARM\PACK\Keil\STM32F1xx_DFP\1.1.0-D__UVISION_VERSION="515" -DSTM32F10X_MD -DUSE_STDPERIPH_DRIVER-o ..\..\output\communication.o --omf_browse ..\..\output\communication.crf --depend ..\..\output\communication.d)
+I (..\..\User\communication.h)(0x5D3C7E25)
 I (..\..\Libraries\CMSIS\stm32f10x.h)(0x5D2EE864)
 I (..\..\Libraries\CMSIS\core_cm3.h)(0x5D2EE864)
 I (D:\Keil_v5\ARM\ARMCC\include\stdint.h)(0x54C245B8)
@@ -1215,13 +1191,10 @@ I (..\..\Libraries\FWlib\inc\stm32f10x_tim.h)(0x5D2EE865)
 I (..\..\Libraries\FWlib\inc\stm32f10x_usart.h)(0x5D2EE865)
 I (..\..\Libraries\FWlib\inc\stm32f10x_wwdg.h)(0x5D2EE865)
 I (..\..\Libraries\FWlib\inc\misc.h)(0x5D2EE864)
-I (..\..\User\adc\bsp_adc.h)(0x5D32CAA3)
-I (..\..\User\led\bsp_led.h)(0x5D2EE86A)
 I (..\..\User\usart\bsp_usart.h)(0x5D2EE866)
 I (D:\Keil_v5\ARM\ARMCC\include\stdio.h)(0x54C245B8)
-I (..\..\User\eeprom.h)(0x5D36D8D9)
+I (..\..\User\functional.h)(0x5D3EAAF7)
+I (..\..\User\led\bsp_led.h)(0x5D2EE86A)
+I (..\..\User\eeprom.h)(0x5D3C7EB1)
 I (..\..\User\AT24C16\bsp_i2c_ee.h)(0x5D2EE86A)
-I (..\..\User\rtc\bsp_rtc.h)(0x5D2EE866)
-I (..\..\User\./rtc/bsp_calendar.h)(0x5D2EE866)
-I (..\..\User\./rtc/bsp_date.h)(0x5D2EE866)
 F (..\..\Doc\readme.txt)(0x5D2EE864)()

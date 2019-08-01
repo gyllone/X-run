@@ -1,6 +1,6 @@
 #include "bsp_adc.h"
 
-__IO uint16_t ADC_ConvertedValue[NOFCHANEL]={0, 0};
+__IO uint16_t ADC_ConvertedValue[NOFCHANEL]={0, 0, 0, 0};
 
 /**
   * @brief  ADC GPIO 初始化
@@ -9,18 +9,22 @@ __IO uint16_t ADC_ConvertedValue[NOFCHANEL]={0, 0};
   */
 static void ADCx_GPIO_Config(void)
 {
-	GPIO_InitTypeDef GPIO_InitStructure;
+	GPIO_InitTypeDef GPIO_InitStructure, GPIO_InitStructure_2;
 	
 	// 打开 ADC IO端口时钟
-	ADC_GPIO_APBxClock_FUN ( ADC_GPIO_CLK, ENABLE );
+	ADC_GPIO_APBxClock_FUN ( ADC_GPIO_CLK_1, ENABLE );
+	ADC_GPIO_APBxClock_FUN ( ADC_GPIO_CLK_2, ENABLE );
 	
 	// 配置 ADC IO 引脚模式
-	GPIO_InitStructure.GPIO_Pin = 	ADC_PIN1 | ADC_PIN2;
+	GPIO_InitStructure.GPIO_Pin = ADC_PIN1 | ADC_PIN2;
+	GPIO_InitStructure_2.GPIO_Pin = ADC_PIN3 | ADC_PIN4;
 
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AIN;
+	GPIO_InitStructure_2.GPIO_Mode = GPIO_Mode_AIN;
 	
 	// 初始化 ADC IO
-	GPIO_Init(ADC_PORT, &GPIO_InitStructure);				
+	GPIO_Init(ADC_PORT_1, &GPIO_InitStructure);
+	GPIO_Init(ADC_PORT_2, &GPIO_InitStructure_2);		
 }
 
 /**
@@ -109,6 +113,8 @@ static void ADCx_Mode_Config(void)
 	// 配置ADC 通道的转换顺序和采样时间
 	ADC_RegularChannelConfig(ADC_x, ADC_CHANNEL1, 1, ADC_SampleTime_55Cycles5);
 	ADC_RegularChannelConfig(ADC_x, ADC_CHANNEL2, 2, ADC_SampleTime_55Cycles5);
+	ADC_RegularChannelConfig(ADC_x, ADC_CHANNEL3, 3, ADC_SampleTime_55Cycles5);
+	ADC_RegularChannelConfig(ADC_x, ADC_CHANNEL4, 4, ADC_SampleTime_55Cycles5);
 
 	// 使能ADC DMA 请求
 	ADC_DMACmd(ADC_x, ENABLE);

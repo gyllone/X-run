@@ -176,9 +176,9 @@ void RTC_Configuration(void)
 	/* 确保上一次 RTC 的操作完成 */
 	RTC_WaitForLastTask();
 	
-	/* 设置 RTC 分频: 使 RTC 周期为2s  */
+	/* 设置 RTC 分频: 使 RTC 周期为1s  */
 	/* RTC period = RTCCLK/RTC_PR = (32.768 KHz)/(32767+1) = 1HZ */
-	RTC_SetPrescaler(65535);
+	RTC_SetPrescaler(32767);
 	
 	/* 确保上一次 RTC 的操作完成 */
 	RTC_WaitForLastTask();

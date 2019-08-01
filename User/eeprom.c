@@ -1,13 +1,15 @@
 #include "eeprom.h"
+#include "bsp_rtc.h"
+#include "functional.h"
+#include "communication.h"
 
 extern struct rtc_time systmtime;
 
-extern uint32_t app_id;
 extern uint8_t eeprom_status;
 extern uint8_t binding_flag;
+extern uint32_t app_id;
 extern Step walking;
 extern Step running;
-extern float weight;
 extern float hanging;
 
 void EEP_Initial_Read(void) {
@@ -17,7 +19,7 @@ void EEP_Initial_Read(void) {
 	uint32_t tempvalue;
 	//检查E方是否正常
 	eeprom_status = ee_CheckOk();
-	if (eeprom_status < 1) {
+	if (eeprom_status != 1) {
 		return;
 	}
 	//检查是否为首次刷新
@@ -33,7 +35,7 @@ void EEP_Initial_Read(void) {
 	
 	//检查设备绑定状态
 	eeprom_status = ee_ReadBytes(bindbuffer, ACTIVE_STATUS_ADDR, ACTIVE_STATUS_SIZE);
-	if (eeprom_status < 1) {
+	if (eeprom_status != 1) {
 		return;
 	}
 	tempvalue = (uint32_t)bindbuffer[1] << 24 | (uint32_t)bindbuffer[2] << 16 |
@@ -46,7 +48,7 @@ void EEP_Initial_Read(void) {
 	if (binding_flag == 1) {
 		//走路信息
 		eeprom_status = ee_ReadBytes(tempbuffer, CYCLE_WAKLSTEP_ADDR, CYCLE_WALKSTEP_SIZE);
-		if (eeprom_status < 1) {
+		if (eeprom_status != 1) {
 			return;
 		}
 		tempvalue = (uint32_t)(tempbuffer[0] << 24) | (uint32_t)(tempbuffer[1] << 16) |
@@ -56,7 +58,7 @@ void EEP_Initial_Read(void) {
 		}
 		//走路信息
 		eeprom_status = ee_ReadBytes(tempbuffer, TOTAL_WALKSTEP_ADDR, TOTAL_WALKSTEP_SIZE);
-		if (eeprom_status < 1) {
+		if (eeprom_status != 1) {
 			return;
 		}
 		tempvalue = (uint32_t)(tempbuffer[0] << 24) | (uint32_t)(tempbuffer[1] << 16) |
@@ -66,7 +68,7 @@ void EEP_Initial_Read(void) {
 		}
 		//跑步信息
 		eeprom_status = ee_ReadBytes(tempbuffer, CYCLE_RUNSTEP_ADDR, CYCLE_RUNSTEP_SIZE);
-		if (eeprom_status < 1) {
+		if (eeprom_status != 1) {
 			return;
 		}
 		tempvalue = (uint32_t)(tempbuffer[0] << 24) | (uint32_t)(tempbuffer[1] << 16) |
@@ -76,7 +78,7 @@ void EEP_Initial_Read(void) {
 		}
 		//跑步信息
 		eeprom_status = ee_ReadBytes(tempbuffer, TOTAL_RUNSTEP_ADDR, TOTAL_RUNSTEP_SIZE);
-		if (eeprom_status < 1) {
+		if (eeprom_status != 1) {
 			return;
 		}
 		tempvalue = (uint32_t)(tempbuffer[0] << 24) | (uint32_t)(tempbuffer[1] << 16) |
@@ -84,21 +86,29 @@ void EEP_Initial_Read(void) {
 		if (COM_Checksum(tempvalue) == tempbuffer[4]) {
 			running.total_steps = tempvalue;
 		}
-		//体重信息
-		eeprom_status = ee_ReadBytes(tempbuffer, WEIGHT_PRESSURE_ADDR, WEIGHT_PRESSURE_SIZE);
-		if (eeprom_status < 1) {
+		//走路标定值
+		eeprom_status = ee_ReadBytes(tempbuffer, WALK_CALIBRATION_ADDR, WALK_CALIBRATION_SIZE);
+		if (eeprom_status != 1) {
 			return;
 		}
 		tempvalue = (uint32_t)(tempbuffer[0] << 24) | (uint32_t)(tempbuffer[1] << 16) |
 								(uint32_t)(tempbuffer[2] << 8) | (uint32_t)tempbuffer[3];
 		if (COM_Checksum(tempvalue) == tempbuffer[4]) {
-			weight = (float)tempvalue / 1000000000;
-			walking.threshold = weight * WALK_WEIGHT_RATIO;
-			running.threshold = weight * RUN_WEIGHT_RATIO;
+			walking.threshold = (float)tempvalue / 1000000000;
 		}
-		//静置信息
-		eeprom_status = ee_ReadBytes(tempbuffer, HANG_PRESSURE_ADDR, HANG_PRESSURE_SIZE);
-		if (eeprom_status < 1) {
+		//跑步标定值
+		eeprom_status = ee_ReadBytes(tempbuffer, RUN_CALIBRATION_ADDR, RUN_CALIBRATION_SIZE);
+		if (eeprom_status != 1) {
+			return;
+		}
+		tempvalue = (uint32_t)(tempbuffer[0] << 24) | (uint32_t)(tempbuffer[1] << 16) |
+								(uint32_t)(tempbuffer[2] << 8) | (uint32_t)tempbuffer[3];
+		if (COM_Checksum(tempvalue) == tempbuffer[4]) {
+			running.threshold = (float)tempvalue / 1000000000;
+		}
+		//静置标定值
+		eeprom_status = ee_ReadBytes(tempbuffer, HANG_CALIBRATION_ADDR, HANG_CALIBRATION_SIZE);
+		if (eeprom_status != 1) {
 			return;
 		}
 		tempvalue = (uint32_t)(tempbuffer[0] << 24) | (uint32_t)(tempbuffer[1] << 16) |
@@ -112,12 +122,34 @@ void EEP_Initial_Read(void) {
 //绑定使用
 void EEP_Binding_Write(void) {
 	uint8_t data[ACTIVE_STATUS_SIZE];
-	uint8_t stepbuffer[5] = {0, 0, 0, 0, 0};
-	eeprom_status = ee_WriteBytes(stepbuffer, CYCLE_WAKLSTEP_ADDR, CYCLE_WALKSTEP_SIZE);
-	eeprom_status = ee_WriteBytes(stepbuffer, TOTAL_WALKSTEP_ADDR, TOTAL_WALKSTEP_SIZE);
-	eeprom_status = ee_WriteBytes(stepbuffer, CYCLE_RUNSTEP_ADDR, CYCLE_RUNSTEP_SIZE);
-	eeprom_status = ee_WriteBytes(stepbuffer, TOTAL_RUNSTEP_ADDR, TOTAL_RUNSTEP_SIZE);	
-	if (eeprom_status < 1) {
+	uint8_t buffer[5] = {0, 0, 0, 0, 0};
+	eeprom_status = ee_WriteBytes(buffer, CYCLE_WAKLSTEP_ADDR, CYCLE_WALKSTEP_SIZE);
+	eeprom_status = ee_WriteBytes(buffer, TOTAL_WALKSTEP_ADDR, TOTAL_WALKSTEP_SIZE);
+	eeprom_status = ee_WriteBytes(buffer, CYCLE_RUNSTEP_ADDR, CYCLE_RUNSTEP_SIZE);
+	eeprom_status = ee_WriteBytes(buffer, TOTAL_RUNSTEP_ADDR, TOTAL_RUNSTEP_SIZE);
+
+	buffer[0] = 0x11;
+	buffer[1] = 0xe1;
+	buffer[2] = 0xa3;
+	buffer[3] = 0x00;
+	buffer[4] = 3;
+	eeprom_status = ee_WriteBytes(buffer, WALK_CALIBRATION_ADDR, WALK_CALIBRATION_SIZE);
+	
+	buffer[0] = 0x1d;
+	buffer[1] = 0xcd;
+	buffer[2] = 0x65;
+	buffer[3] = 0x00;
+	buffer[4] = 5;
+	eeprom_status = ee_WriteBytes(buffer, RUN_CALIBRATION_ADDR, RUN_CALIBRATION_SIZE);
+	
+	buffer[0] = 0x9b;
+	buffer[1] = 0x91;
+	buffer[2] = 0x70;
+	buffer[3] = 0x80;
+	buffer[4] = 9;
+	eeprom_status = ee_WriteBytes(buffer, HANG_CALIBRATION_ADDR, HANG_CALIBRATION_SIZE);
+	
+	if (eeprom_status != 1) {
 		return;
 	}
 	data[0] = binding_flag;
@@ -129,38 +161,49 @@ void EEP_Binding_Write(void) {
 	eeprom_status = ee_WriteBytes(data, ACTIVE_STATUS_ADDR, ACTIVE_STATUS_SIZE);
 }
 
-//体重标定
-void EEP_Weight_Write(void) {
-	uint32_t tempweight;
-	uint8_t weightchar[WEIGHT_PRESSURE_SIZE];
-	tempweight = (uint32_t)(weight * 1000000000);
-	weightchar[0] = (uint8_t)(tempweight >> 24);
-	weightchar[1] = (uint8_t)(tempweight >> 16);
-	weightchar[2] = (uint8_t)(tempweight >> 8);
-	weightchar[3] = (uint8_t)tempweight;
-	weightchar[4] = COM_Checksum(tempweight);
-	eeprom_status = ee_WriteBytes(weightchar, WEIGHT_PRESSURE_ADDR, WEIGHT_PRESSURE_SIZE);
+//步幅标定
+void EEP_StepCalibration_Write(void) {
+	uint8_t thresholdchar[5];
+	uint32_t value = (uint32_t)(walking.threshold * 1000000000);
+	thresholdchar[0] = (uint8_t)(value >> 24);
+	thresholdchar[1] = (uint8_t)(value >> 16);
+	thresholdchar[2] = (uint8_t)(value >> 8);
+	thresholdchar[3] = (uint8_t)value;
+	thresholdchar[4] = COM_Checksum(value);
+	eeprom_status = ee_WriteBytes(thresholdchar, WALK_CALIBRATION_ADDR, WALK_CALIBRATION_SIZE);
+
+	if (eeprom_status != 1) {
+		return;
+	}
+	value = (uint32_t)(running.threshold * 1000000000);
+	thresholdchar[0] = (uint8_t)(value >> 24);
+	thresholdchar[1] = (uint8_t)(value >> 16);
+	thresholdchar[2] = (uint8_t)(value >> 8);
+	thresholdchar[3] = (uint8_t)value;
+	thresholdchar[4] = COM_Checksum(value);
+	eeprom_status = ee_WriteBytes(thresholdchar, RUN_CALIBRATION_ADDR, RUN_CALIBRATION_SIZE);
 }
 
 //静置标定
-void EEP_Hang_Write(void) {
+void EEP_HangCalibration_Write(void) {
 	uint32_t temphang;
-	uint8_t hangchar[HANG_PRESSURE_SIZE];
+	uint8_t hangchar[HANG_CALIBRATION_SIZE];
 	temphang = (uint32_t)(hanging * 1000000000);
 	hangchar[0] = (uint8_t)(temphang >> 24);
 	hangchar[1] = (uint8_t)(temphang >> 16);
 	hangchar[2] = (uint8_t)(temphang >> 8);
 	hangchar[3] = (uint8_t)temphang;
 	hangchar[4] = COM_Checksum(temphang);
-	eeprom_status = ee_WriteBytes(hangchar, HANG_PRESSURE_ADDR, HANG_PRESSURE_SIZE);
+	eeprom_status = ee_WriteBytes(hangchar, HANG_CALIBRATION_ADDR, HANG_CALIBRATION_SIZE);
 }
 
-//上传步数使用
+//上传走路步数
 void EEP_WalkStep_Write(void) {
 	uint8_t stepbuffer[CYCLE_WALKSTEP_SIZE] = {0, 0, 0, 0, 0};
 	eeprom_status = ee_WriteBytes(stepbuffer, CYCLE_WAKLSTEP_ADDR, CYCLE_WALKSTEP_SIZE);
 }
 
+//上传跑路步数
 void EEP_RunStep_Write(void) {
 	uint8_t stepbuffer[CYCLE_RUNSTEP_SIZE] = {0, 0, 0, 0, 0};
 	eeprom_status = ee_WriteBytes(stepbuffer, CYCLE_RUNSTEP_ADDR, CYCLE_RUNSTEP_SIZE);

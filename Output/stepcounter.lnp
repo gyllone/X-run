@@ -37,7 +37,6 @@
 "..\..\output\bsp_rtc.o"
 "..\..\output\bsp_iwdg.o"
 "..\..\output\bsp_chipid.o"
-"..\..\output\crypto.o"
 "..\..\output\functional.o"
 "..\..\output\eeprom.o"
 "..\..\output\communication.o"
