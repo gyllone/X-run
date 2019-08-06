@@ -10,7 +10,7 @@
 
 #define INITIAL_FACTOR 						0.55f //初始滤波系数
 #define BATTVOLT_FACTOR 					0.75f //电池滤波系数
-#define PRESSURE_FACTOR 					0.65f //压力滤波系数
+#define PRESSURE_FACTOR 					0.75f //压力滤波系数
 
 #define HANG_RATIO 								0.98f //悬空系数
 #define WALK_AMP_RATIO 						0.9f
@@ -29,7 +29,6 @@
 //表示步数，run和walk通用
 typedef struct Stepping {
 	float 	 threshold;
-	uint32_t current_steps;
 	uint32_t total_steps;
 } Step;
 
