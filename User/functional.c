@@ -6,8 +6,6 @@
 #include "trigonometric.h"
 #include "communication.h"
 
-const extern uint32_t device_id;
-
 extern volatile uint8_t charging_flag;
 extern volatile uint8_t response_flag;
 extern volatile float battsoc;
@@ -18,10 +16,10 @@ extern uint8_t step_flag;
 extern uint16_t fillcounter;
 extern Step walking;
 extern Step running;
-extern float pressure_1;
-extern float pressure_2;
-extern float hanging_1;
-extern float hanging_2;
+extern float pressure_a;
+extern float pressure_b;
+extern float hanging_a;
+extern float hanging_b;
 
 //休眠计数
 static uint16_t standingcounter = 0;
@@ -29,8 +27,8 @@ static complex A1[512];
 static complex A2[512];
 static complex B1[512];
 static complex B2[512];
-static float Value1[99];
-static float Value2[99];
+static float ValueA[99];
+static float ValueB[99];
 float a_amp_offset = 0;
 float b_amp_offset = 0;
 amplitude a_amp_1 = {0, 0};
@@ -170,24 +168,24 @@ static void fft_stepfrequency(void) {
 	a_amp_offset = A2[0].re / 512;
 	b_amp_offset = B2[0].re / 512;
 	for (uint16_t k = 1; k < 100; k++) {
-		Value1[k - 1] = sqrt((A2[k].re / 256) * (A2[k].re / 256) + (A2[k].im / 256) * (A2[k].im / 256));
-		if (Value1[k - 1] > a_amp_1.value) {
-			a_amp_1.value = Value1[k - 1];
+		ValueA[k - 1] = sqrt((A2[k].re / 256) * (A2[k].re / 256) + (A2[k].im / 256) * (A2[k].im / 256));
+		if (ValueA[k - 1] > a_amp_1.value) {
+			a_amp_1.value = ValueA[k - 1];
 			a_amp_1.index = k;
 		}
-		Value2[k - 1] = sqrt((B2[k].re / 256) * (B2[k].re / 256) + (B2[k].im / 256) * (B2[k].im / 256));
-		if (Value2[k - 1] > b_amp_1.value) {
-			b_amp_1.value = Value2[k - 1];
+		ValueB[k - 1] = sqrt((B2[k].re / 256) * (B2[k].re / 256) + (B2[k].im / 256) * (B2[k].im / 256));
+		if (ValueB[k - 1] > b_amp_1.value) {
+			b_amp_1.value = ValueB[k - 1];
 			b_amp_1.index = k;
 		}
 	}
 	for (uint16_t k = 1; k < 100; k++) {
-		if (Value1[k - 1] > a_amp_2.value && Value1[k - 1] < a_amp_1.value) {
-			a_amp_2.value = Value1[k - 1];
+		if (ValueA[k - 1] > a_amp_2.value && ValueA[k - 1] < a_amp_1.value) {
+			a_amp_2.value = ValueA[k - 1];
 			a_amp_2.index = k;
 		}
-		if (Value2[k - 1] > b_amp_2.value && Value2[k - 1] < b_amp_1.value) {
-			b_amp_2.value = Value2[k - 1];
+		if (ValueB[k - 1] > b_amp_2.value && ValueB[k - 1] < b_amp_1.value) {
+			b_amp_2.value = ValueB[k - 1];
 			b_amp_2.index = k;
 		}
 	}
@@ -195,33 +193,36 @@ static void fft_stepfrequency(void) {
 }
 
 static void step_counter(void) {
-	uint8_t tempstep;
-	if (a_amp_1.index - a_amp_2.index > 2 || a_amp_1.index - a_amp_2.index < -2) {
-		return;
+	if (a_amp_1.value >= running.threshold_a && b_amp_1.value >= running.threshold_b) {
+		float tempstep = ((a_amp_1.value * a_amp_1.index + a_amp_2.value * a_amp_2.index) / (a_amp_1.value + a_amp_2.value) + 
+											(b_amp_1.value * b_amp_1.index + b_amp_2.value * b_amp_2.index) / (b_amp_1.value + b_amp_2.value)) / 2;
+		if (tempstep - (float)(uint32_t)tempstep >= 0.5) {
+			running.total_steps += (uint32_t)tempstep + 1;
+		}
+		else {
+			running.total_steps += (uint32_t)tempstep;
+		}
 	}
-	if (a_amp_1.value + a_amp_2.value < walking.threshold) {
-		return;
-	}
-	
-	if (a_amp_1.index > a_amp_2.index) {
-		tempstep = a_amp_2.index;
-	}
-	else {
-		tempstep = a_amp_1.index;
-	}
-	
-	if (a_amp_1.value + a_amp_2.value < running.threshold) {
-		walking.total_steps += tempstep;
-	}
-	else {
-		running.total_steps += tempstep;
+	else if (a_amp_1.value >= walking.threshold_a && a_amp_1.value < running.threshold_a && 
+					 b_amp_1.value >= walking.threshold_b && b_amp_1.value < running.threshold_b) {
+		float tempstep = ((a_amp_1.value * a_amp_1.index + a_amp_2.value * a_amp_2.index) / (a_amp_1.value + a_amp_2.value) + 
+											(b_amp_1.value * b_amp_1.index + b_amp_2.value * b_amp_2.index) / (b_amp_1.value + b_amp_2.value)) / 2;
+		if (tempstep - (float)(uint32_t)tempstep >= 0.5) {
+			walking.total_steps += (uint32_t)tempstep + 1;
+		}
+		else {
+			walking.total_steps += (uint32_t)tempstep;
+		}
 	}
 }
 
 static void step_calibration(void) {
-	if (a_amp_1.value < WEIGHT_AMP_THRESHOLD && a_amp_offset < MAX_WEIGHT) {
-		walking.threshold = (a_amp_offset - hanging_1) * WALK_AMP_RATIO;
-		running.threshold = (a_amp_offset - hanging_1) * RUN_AMP_RATIO;
+	if (a_amp_1.value < WEIGHT_AMP_THRESHOLD_A && a_amp_offset < MAX_WEIGHT_A &&
+			b_amp_1.value < WEIGHT_AMP_THRESHOLD_B && b_amp_offset < MAX_WEIGHT_B ) {
+		walking.threshold_a = (a_amp_offset - hanging_a) * WALK_AMP_RATIO_A;
+		walking.threshold_b = (b_amp_offset - hanging_b) * WALK_AMP_RATIO_B;
+		running.threshold_a = (a_amp_offset - hanging_a) * RUN_AMP_RATIO_A;
+		running.threshold_b = (b_amp_offset - hanging_b) * RUN_AMP_RATIO_B;
 		EEP_StepCalibration_Write();
 		COM_Send_Positive();
 	}
@@ -232,8 +233,10 @@ static void step_calibration(void) {
 }
 
 static void hang_calibration(void) {
-	if (a_amp_1.value < HANG_AMP_THRESHOLD && a_amp_offset > MIN_HANG) {
-		hanging_1 = a_amp_offset;
+	if (a_amp_1.value < HANG_AMP_THRESHOLD && a_amp_offset > MIN_HANG &&
+			b_amp_1.value < HANG_AMP_THRESHOLD && a_amp_offset > MIN_HANG) {
+		hanging_a = a_amp_offset;
+		hanging_b = a_amp_offset;
 		EEP_HangCalibration_Write();
 		COM_Send_Positive();
 	}
@@ -259,8 +262,8 @@ static float caculate_soc(void) {
 }
 
 static void get_pressureset(void) {
-	A1[fillcounter].re = pressure_1;
-	B1[fillcounter].re = pressure_2;
+	A1[fillcounter].re = pressure_a;
+	B1[fillcounter].re = pressure_b;
 	fillcounter++;
 }
 
@@ -292,8 +295,8 @@ void FUNC_BattSOC_Caculation(void) {
 //滤波初始化
 void FUNC_Functional_Initial(void) {
 	for (uint8_t i = 0; i < 100; i++) {
-		pressure_1 = (1 - INITIAL_FACTOR) * (float) ADC_ConvertedValue[1] / 4096 * 3.3f + INITIAL_FACTOR * pressure_1;
-		pressure_2 = (1 - INITIAL_FACTOR) * (float) ADC_ConvertedValue[2] / 4096 * 3.3f + INITIAL_FACTOR * pressure_1;
+		pressure_a = (1 - INITIAL_FACTOR) * (float) ADC_ConvertedValue[1] / 4096 * 3.3f + INITIAL_FACTOR * pressure_a;
+		pressure_b = (1 - INITIAL_FACTOR) * (float) ADC_ConvertedValue[2] / 4096 * 3.3f + INITIAL_FACTOR * pressure_b;
 		battvolt = (1 - INITIAL_FACTOR) * (float) ADC_ConvertedValue[0] / 2048 * 3.3f + INITIAL_FACTOR * battvolt;
 		INITIALDELAY;
 	}
@@ -309,7 +312,7 @@ uint8_t FUNC_SleepOrNot(void) {
 		return 0;
 	}
 	//非静置状态、通讯状态、充电状态不休眠
-	if (pressure_1 > HANG_RATIO * hanging_1 && response_flag < 1 && charging_flag != 1) {
+	if (pressure_a > HANG_RATIO * hanging_a && pressure_b > HANG_RATIO * hanging_b && response_flag < 1 && charging_flag != 1) {
 		standingcounter++;
 		//1min后进入待机
 		if (standingcounter > 3000) {
@@ -330,8 +333,8 @@ void FUNC_Pressure_Filter(void) {
 		temppressure_2 = ((float)filtercounter * temppressure_2 + (float) ADC_ConvertedValue[2] / 4096 * 3.3) / (float)(filtercounter + 1);
 		SAMPLEDELAY;
 	}
-	pressure_1 = (1 - PRESSURE_FACTOR) * temppressure_1 + PRESSURE_FACTOR * pressure_1;
-	pressure_2 = (1 - PRESSURE_FACTOR) * temppressure_2 + PRESSURE_FACTOR * pressure_2;
+	pressure_a = (1 - PRESSURE_FACTOR) * temppressure_1 + PRESSURE_FACTOR * pressure_a;
+	pressure_b = (1 - PRESSURE_FACTOR) * temppressure_2 + PRESSURE_FACTOR * pressure_b;
 }
 
 void FUNC_Step_CountOrCalibrate(void) {

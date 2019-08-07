@@ -14,7 +14,6 @@ extern uint8_t step_flag;
 extern uint8_t binding_flag;
 extern uint8_t eeprom_status;
 extern uint16_t fillcounter;
-extern uint32_t app_permission;
 extern Step walking;
 extern Step running;
 
@@ -34,13 +33,13 @@ static uint32_t seedbuffer = 0;
 static uint32_t keybuffer = 0;
 
 //计算安全密钥
-static uint32_t crypto_key(uint32_t wSeed, uint32_t security) {
+static uint32_t crypto_key(uint32_t wSeed) {
   uint32_t   wTemp;
   uint32_t   wLSBit;
   uint32_t   wTop31Bits;
 	uint32_t wLastSeed = wSeed;
 	
-  uint32_t temp = (uint32_t)((security & 0x00000800) >> 10) | ((security & 0x00200000)>> 21);   
+  uint32_t temp = (uint32_t)((activation_code & 0x00000800) >> 10) | ((activation_code & 0x00200000)>> 21);   
   switch (temp) {
 		case 0:
 			wTemp = (uint8_t)((wSeed & 0xff000000) >> 24);
@@ -55,9 +54,9 @@ static uint32_t crypto_key(uint32_t wSeed, uint32_t security) {
 			wTemp = (uint8_t)(wSeed & 0x000000ff);
 		break;
 	}
-	uint8_t SB1 = (uint8_t)((security & 0x000003FC) >> 2);
-  uint8_t SB2 = (uint8_t)(((security & 0x7F800000) >> 23) ^ 0xA5);
-  uint8_t SB3 = (uint8_t)(((security & 0x001FE000) >> 13) ^ 0x5A);
+	uint8_t SB1 = (uint8_t)((activation_code & 0x000003FC) >> 2);
+  uint8_t SB2 = (uint8_t)(((activation_code & 0x7F800000) >> 23) ^ 0xA5);
+  uint8_t SB3 = (uint8_t)(((activation_code & 0x001FE000) >> 13) ^ 0x5A);
 	
 	uint8_t iterations = (uint8_t)(((wTemp ^ SB1) & SB2)  + SB3);
 	for (uint8_t i = 0; i < iterations; i++) {
@@ -69,7 +68,7 @@ static uint32_t crypto_key(uint32_t wSeed, uint32_t security) {
     wLastSeed  = (uint8_t)(wTop31Bits | wLSBit);
   }
 
-	if (security & 0x00000001) {
+	if (activation_code & 0x00000001) {
 		wTop31Bits = ((wLastSeed & 0x00FF0000)>>16) |  /*KEY[0] = Last_Seed[1]*/ 
                  ((wLastSeed & 0xFF000000)>>8)  |  /*KEY[1] = Last_Seed[0]*/ 
                  ((wLastSeed & 0x000000FF)<<8)  |  /*KEY[2] = Last_Seed[3]*/
@@ -78,7 +77,7 @@ static uint32_t crypto_key(uint32_t wSeed, uint32_t security) {
 	else {
 		wTop31Bits = wLastSeed;
 	}
-  wTop31Bits = wTop31Bits ^ security;  
+  wTop31Bits = wTop31Bits ^ activation_code;  
   return wTop31Bits;
 }
 
@@ -210,12 +209,10 @@ void COM_Response(void) {
 				case 0x11:
 					if (binding_flag != 1) {
 						temp = (uint32_t)receivebuffer[1] << 24 | (uint32_t)receivebuffer[2] << 16 |
-									 (uint32_t)receivebuffer[3] << 8 | (uint32_t)receivebuffer[4];
+									 (uint32_t)receivebuffer[3] << 8 | (uint32_t)receivebuffer[4];					
 						if (COM_Checksum(temp) == receivebuffer[5]) {
-							seedbuffer = RTC_GetCounter();
-							send_value(seedbuffer); //发送seed
-							keybuffer = crypto_key(seedbuffer, activation_code);
-							app_permission = temp;
+							keybuffer = crypto_key(temp);					
+							send_value(keybuffer); //发送key
 							response_flag = 2;
 						}
 						else {
@@ -233,7 +230,7 @@ void COM_Response(void) {
 						temp = (uint32_t)receivebuffer[1] << 24 | (uint32_t)receivebuffer[2] << 16 |
 									 (uint32_t)receivebuffer[3] << 8 | (uint32_t)receivebuffer[4];
 						if (COM_Checksum(temp) == receivebuffer[5]) {
-							keybuffer = crypto_key(temp, app_permission);
+							keybuffer = crypto_key(temp);
 							send_value(keybuffer); //发送key
 							response_flag = 4;
 						}
@@ -250,7 +247,7 @@ void COM_Response(void) {
 					if (binding_flag == 1) {
 						seedbuffer = RTC_GetCounter();
 						send_value(seedbuffer); //发送seed
-						keybuffer = crypto_key(seedbuffer, app_permission);
+						keybuffer = crypto_key(seedbuffer);
 						response_flag = 5;
 					}
 					else {
@@ -276,26 +273,13 @@ void COM_Response(void) {
 			break;
 		case 2:
 			if (receivebuffer[0] == 0xAA) {
-				temp = (uint32_t)receivebuffer[1] << 24 | (uint32_t)receivebuffer[2] << 16 |
-							 (uint32_t)receivebuffer[3] << 8 | (uint32_t)receivebuffer[4];
-				if (COM_Checksum(temp) == receivebuffer[5]) {
-					if (keybuffer == temp) {
-						send_value(activation_code);
-						binding_flag = 1;
-						EEP_Binding_Write();
-						response_flag = 3;
-					}
-					else {
-						COM_Send_Deny(INVALID_KEY);
-						response_flag = 0;
-					}
-				}
-				else {
-					COM_Send_Deny(CHECKSUM_ERROR);
-				}
+				seedbuffer = RTC_GetCounter();
+				send_value(seedbuffer);
+				keybuffer = crypto_key(seedbuffer);
+				response_flag = 3;
 			}
 			else if (receivebuffer[0] == 0xFF) {
-				send_value(seedbuffer);
+				send_value(keybuffer);
 			}
 			else {
 				COM_Send_Deny(INVALID_TYPE);
@@ -303,12 +287,26 @@ void COM_Response(void) {
 			break;
 		case 3:
 			if (receivebuffer[0] == 0xAA) {
-				COM_Send_Positive();
-				response_flag = 0;
-				step_flag = 1;
+				temp = (uint32_t)receivebuffer[1] << 24 | (uint32_t)receivebuffer[2] << 16 |
+							 (uint32_t)receivebuffer[3] << 8 | (uint32_t)receivebuffer[4];
+				if (COM_Checksum(temp) == receivebuffer[5]) {
+					if (keybuffer == temp) {
+						COM_Send_Positive();
+						binding_flag = 1;
+						EEP_Binding_Write();
+						step_flag = 1;
+					}
+					else {
+						COM_Send_Deny(INVALID_KEY);
+					}
+					response_flag = 0;
+				}
+				else {
+					COM_Send_Deny(CHECKSUM_ERROR);
+				}
 			}
 			else if (receivebuffer[0] == 0xFF) {
-				send_value(activation_code);
+				send_value(seedbuffer);
 			}
 			else {
 				COM_Send_Deny(INVALID_TYPE);

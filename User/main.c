@@ -18,24 +18,22 @@ const uint16_t sw_version = 0x100;
 
 //绑定状态(0未绑定，1绑定)
 uint8_t binding_flag = 0;
-//APP许可码
-uint32_t app_permission;
 //E方状态(0为故障，1正常)
 uint8_t eeprom_status = 1;
 //走路相关信息
-Step walking = {0.3f, 0};
+Step walking = {0.3f, 0.3f, 0};
 //跑步相关信息
-Step running = {0.5f, 0};
+Step running = {0.5f, 0.5f, 0};
 //FFT填充计数
 uint16_t fillcounter = 0;
 //静置压力
-float hanging_1 = 2.61f;
+float hanging_a = 2.61f;
 //静置压力2
-float hanging_2 = 2.61f;
+float hanging_b = 2.61f;
 //压力值
-float pressure_1 = 0;
+float pressure_a = 0;
 //压力值
-float pressure_2 = 0;
+float pressure_b = 0;
 //计步标志(0表示未允许计步，1表示计步中，2表示体重标定，3表示静置标定)
 uint8_t step_flag = 0;
 //充电状态(0未充电，1充电) 考虑放在RTC中断中判断
@@ -49,7 +47,7 @@ volatile float battvolt = 0;
 
 //系统时间
 struct rtc_time systmtime = {
-	0, 0, 0, 8, 1, 2019, 0
+	0, 0, 0, 8, 8, 2019, 0
 };
 
 static void Initialization(void) {
@@ -65,10 +63,9 @@ static void Initialization(void) {
 	if(PWR_GetFlagStatus(PWR_FLAG_SB) != RESET) {
 		PWR_ClearFlag(PWR_FLAG_SB);
 		//如果仍处于静置状态，继续休眠
-		if (pressure_1 > HANG_RATIO * hanging_1 && charging_flag == 0) {
+		if (pressure_a > HANG_RATIO * hanging_a && pressure_b > HANG_RATIO * hanging_b && charging_flag == 0) {
 			RTC_SetAlarm(RTC_GetCounter() + 25); //25s后唤醒
 			RTC_WaitForLastTask();
-			GPIO_SetBits(GPIOA, GPIO_Pin_1); //关闭供电
 			IWDG_Feed();
 			IWDG_Config(IWDG_Prescaler_256, 4095);
 			PWR_EnterSTANDBYMode();
@@ -123,7 +120,6 @@ int main(void)
 	EEP_Sleep_Write();
 	RTC_SetAlarm(RTC_GetCounter() + 25); //25s后唤醒
 	RTC_WaitForLastTask();
-	GPIO_ResetBits(GPIOA, GPIO_Pin_1); //关闭供电
 	IWDG_Config(IWDG_Prescaler_256, 4095);
 	IWDG_Feed();
 	//进入待机模式
