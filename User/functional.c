@@ -196,7 +196,7 @@ static void step_counter(void) {
 	if (a_amp_1.value >= running.threshold_a && b_amp_1.value >= running.threshold_b) {
 		float tempstep = ((a_amp_1.value * a_amp_1.index + a_amp_2.value * a_amp_2.index) / (a_amp_1.value + a_amp_2.value) + 
 											(b_amp_1.value * b_amp_1.index + b_amp_2.value * b_amp_2.index) / (b_amp_1.value + b_amp_2.value)) / 2;
-		if (tempstep - (float)(uint32_t)tempstep >= 0.5) {
+		if (tempstep - (float)(uint32_t)tempstep >= 0.5f) {
 			running.total_steps += (uint32_t)tempstep + 1;
 		}
 		else {
@@ -207,7 +207,7 @@ static void step_counter(void) {
 					 b_amp_1.value >= walking.threshold_b && b_amp_1.value < running.threshold_b) {
 		float tempstep = ((a_amp_1.value * a_amp_1.index + a_amp_2.value * a_amp_2.index) / (a_amp_1.value + a_amp_2.value) + 
 											(b_amp_1.value * b_amp_1.index + b_amp_2.value * b_amp_2.index) / (b_amp_1.value + b_amp_2.value)) / 2;
-		if (tempstep - (float)(uint32_t)tempstep >= 0.5) {
+		if (tempstep - (float)(uint32_t)tempstep >= 0.5f) {
 			walking.total_steps += (uint32_t)tempstep + 1;
 		}
 		else {
@@ -329,8 +329,8 @@ uint8_t FUNC_SleepOrNot(void) {
 void FUNC_Pressure_Filter(void) {
 	float temppressure_1, temppressure_2 = 0;
 	for (uint8_t filtercounter = 0 ; filtercounter < 5; filtercounter++) {
-		temppressure_1 = ((float)filtercounter * temppressure_1 + (float) ADC_ConvertedValue[1] / 4096 * 3.3) / (float)(filtercounter + 1);
-		temppressure_2 = ((float)filtercounter * temppressure_2 + (float) ADC_ConvertedValue[2] / 4096 * 3.3) / (float)(filtercounter + 1);
+		temppressure_1 = ((float)filtercounter * temppressure_1 + (float) ADC_ConvertedValue[1] / 4096 * 3.3f) / (float)(filtercounter + 1);
+		temppressure_2 = ((float)filtercounter * temppressure_2 + (float) ADC_ConvertedValue[2] / 4096 * 3.3f) / (float)(filtercounter + 1);
 		SAMPLEDELAY;
 	}
 	pressure_a = (1 - PRESSURE_FACTOR) * temppressure_1 + PRESSURE_FACTOR * pressure_a;
