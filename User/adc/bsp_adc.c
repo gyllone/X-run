@@ -108,7 +108,7 @@ static void ADCx_Mode_Config(void)
 	ADC_Init(ADC_x, &ADC_InitStructure);
 	
 	// 配置ADC时钟Ｎ狿CLK2的8分频，即9MHz
-	RCC_ADCCLKConfig(RCC_PCLK2_Div8); 
+	RCC_ADCCLKConfig(RCC_PCLK2_Div8);
 	
 	// 配置ADC 通道的转换顺序和采样时间
 	ADC_RegularChannelConfig(ADC_x, ADC_CHANNEL1, 1, ADC_SampleTime_55Cycles5);

@@ -28,7 +28,6 @@
 
 #define INITIALDELAY delay_ms(1); //隔1ms读一次电压
 #define SAMPLEDELAY delay_ms(2); //隔2ms读一次电压
-#define LEDDELAY twinkle(100);
 
 //表示步数，run和walk通用
 typedef struct Stepping {
@@ -49,6 +48,7 @@ typedef struct Amplitude {
 
 uint8_t FUNC_SleepOrNot(void);
 void FUNC_ChargeOrNot(void);
+void FUNC_Led_Breath(void);
 void FUNC_BattSOC_Caculation(void);
 void FUNC_Functional_Initial(void);
 void FUNC_Pressure_Filter(void);
@@ -67,20 +67,6 @@ static void delay_ms(uint16_t nms)
 	while((temp & 0x01) && (!(temp & (1 << 16))));//等待时间到达
   SysTick->CTRL = 0x00; //关闭计数器
   SysTick->VAL = 0x00; //清空计数器
-}
-
-static void twinkle(uint16_t nms) {
-	LED1_ON;
-	LED2_ON;
-	delay_ms(nms);
-	LED1_OFF;
-	LED2_OFF;
-	delay_ms(nms);
-	LED1_ON;
-	LED2_ON;
-	delay_ms(nms);
-	LED1_OFF;
-	LED2_OFF;
 }
 
 #endif

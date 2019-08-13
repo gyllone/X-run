@@ -267,6 +267,16 @@ static void get_pressureset(void) {
 	fillcounter++;
 }
 
+//呼吸灯
+void FUNC_Led_Breath(void) {
+	if (GPIO_ReadOutputDataBit(LED2_GPIO_PORT, LED2_GPIO_PIN) == Bit_SET) {
+		LED2_ON;
+	}
+	else {
+		LED2_OFF;
+	}
+}
+
 //充电与否判断
 void FUNC_ChargeOrNot(void) {
 	if ((float)ADC_ConvertedValue[3] / 2048 * 3.3f > 4.35f) {

@@ -1,20 +1,13 @@
-#include "stm32f10x.h"
-#include "bsp_led.h"
 #include "bsp_adc.h"
-#include "bsp_i2c_ee.h"
-#include "bsp_i2c_gpio.h"
 #include "bsp_rtc.h"
-#include "bsp_usart.h"
 #include "bsp_iwdg.h"
-#include "bsp_chipid.h"
-#include "stm32f10x_iwdg.h"
 #include "eeprom.h"
 #include "functional.h"
 #include "communication.h"
 
 //激活码
 const uint32_t activation_code = 0x2A16E4E8;
-const uint16_t sw_version = 0x100;
+const uint16_t sw_version = 0x2710;
 
 //绑定状态(0未绑定，1绑定)
 uint8_t binding_flag = 0;
@@ -81,7 +74,6 @@ static void Initialization(void) {
 	}
 	//看门狗初始化
 	IWDG_Init();
-	LEDDELAY;
 }
 
 //RTC中断
@@ -92,6 +84,7 @@ void RTC_IRQHandler(void)
 	{
 		RTC_ClearITPendingBit(RTC_IT_SEC|RTC_IT_OW);
 		RTC_WaitForLastTask();
+		FUNC_Led_Breath();
 		FUNC_ChargeOrNot();
 		FUNC_BattSOC_Caculation();
 	}
@@ -105,8 +98,7 @@ void USART1_IRQHandler(void) {
 	}
 }
 
-int main(void)
-{
+int main(void) {
 	Initialization();
 	//主循环10ms一次
 	while (FUNC_SleepOrNot())
@@ -124,6 +116,7 @@ int main(void)
 	IWDG_Feed();
 	//进入待机模式
 	PWR_EnterSTANDBYMode();
+	return 0;
 }
 
 /*********************************************END OF FILE**********************/
