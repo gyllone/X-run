@@ -7,22 +7,22 @@
 
 //激活码
 const uint32_t activation_code = 0x2A16E4E8;
-const uint16_t sw_version = 0x2710;
+const uint16_t sw_version = 0x3039;
 
 //绑定状态(0未绑定，1绑定)
 uint8_t binding_flag = 0;
 //E方状态(0为故障，1正常)
 uint8_t eeprom_status = 1;
 //走路相关信息
-Step walking = {0.3f, 0.3f, 0};
+Step walking = {0.8f, 0.7f, 0};
 //跑步相关信息
-Step running = {0.5f, 0.5f, 0};
+Step running = {1.1f, 1.0f, 0};
 //FFT填充计数
 uint16_t fillcounter = 0;
 //静置压力
-float hanging_a = 2.61f;
+float hanging_a = 3.27f;
 //静置压力2
-float hanging_b = 2.61f;
+float hanging_b = 3.28f;
 //压力值
 float pressure_a = 0;
 //压力值
@@ -116,7 +116,6 @@ int main(void) {
 	IWDG_Feed();
 	//进入待机模式
 	PWR_EnterSTANDBYMode();
-	return 0;
 }
 
 /*********************************************END OF FILE**********************/

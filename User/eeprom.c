@@ -4,7 +4,6 @@
 #include "communication.h"
 
 extern struct rtc_time systmtime;
-
 extern uint8_t eeprom_status;
 extern uint8_t binding_flag;
 extern Step walking;

@@ -8,23 +8,23 @@
 #define ProductRe(a, b, c, d) ((a) * (c) - (b) * (d))
 #define ProductIm(a, b, c, d) ((a) * (d) + (b) * (c))
 
-#define INITIAL_FACTOR 						0.55f //初始滤波系数
-#define BATTVOLT_FACTOR 					0.75f //电池滤波系数
+#define INITIAL_FACTOR 						0.35f //初始滤波系数
+#define BATTVOLT_FACTOR 					0.55f //电池滤波系数
 #define PRESSURE_FACTOR 					0.75f //压力滤波系数
 
 #define HANG_RATIO 								0.98f //悬空系数
-#define WALK_AMP_RATIO_A					0.9f
-#define WALK_AMP_RATIO_B					0.9f
-#define RUN_AMP_RATIO_A						1.2f
-#define RUN_AMP_RATIO_B						1.2f
+#define WALK_AMP_RATIO_A					0.4f
+#define WALK_AMP_RATIO_B					0.4f
+#define RUN_AMP_RATIO_A						0.65f
+#define RUN_AMP_RATIO_B						0.65f
 
 #define HANG_AMP_THRESHOLD	 			0.001f
 #define WEIGHT_AMP_THRESHOLD_A		0.05f
 #define WEIGHT_AMP_THRESHOLD_B		0.05f
 
-#define MIN_HANG 									2.45f
-#define MAX_WEIGHT_A							2.2f
-#define MAX_WEIGHT_B							2.2f
+#define MIN_HANG 									3.2f
+#define MAX_WEIGHT_A							2.9f
+#define MAX_WEIGHT_B							2.7f
 
 #define INITIALDELAY delay_ms(1); //隔1ms读一次电压
 #define SAMPLEDELAY delay_ms(2); //隔2ms读一次电压

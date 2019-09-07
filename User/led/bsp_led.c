@@ -1,5 +1,4 @@
- 
-#include "bsp_led.h"   
+ #include "bsp_led.h"   
 
 
 void LED_GPIO_Config(void)
@@ -8,7 +7,7 @@ void LED_GPIO_Config(void)
 		GPIO_InitTypeDef GPIO_InitStructure;
 
 		/*开启LED相关的GPIO外设时钟*/
-		//RCC_APB2PeriphClockCmd(LED1_GPIO_CLK, ENABLE);
+		RCC_APB2PeriphClockCmd(LED2_GPIO_CLK, ENABLE);
 	
 		/*选择要控制的GPIO引脚*/
 		//GPIO_InitStructure.GPIO_Pin = LED1_GPIO_PIN;	

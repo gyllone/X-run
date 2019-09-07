@@ -191,7 +191,7 @@ static void fft_stepfrequency(void) {
 	}
 	fillcounter = 0;
 }
-
+//计步
 static void step_counter(void) {
 	if (a_amp_1.value >= running.threshold_a && b_amp_1.value >= running.threshold_b) {
 		float tempstep = ((a_amp_1.value * a_amp_1.index + a_amp_2.value * a_amp_2.index) / (a_amp_1.value + a_amp_2.value) + 
@@ -215,14 +215,14 @@ static void step_counter(void) {
 		}
 	}
 }
-
+//步数标定
 static void step_calibration(void) {
 	if (a_amp_1.value < WEIGHT_AMP_THRESHOLD_A && a_amp_offset < MAX_WEIGHT_A &&
 			b_amp_1.value < WEIGHT_AMP_THRESHOLD_B && b_amp_offset < MAX_WEIGHT_B ) {
-		walking.threshold_a = (a_amp_offset - hanging_a) * WALK_AMP_RATIO_A;
-		walking.threshold_b = (b_amp_offset - hanging_b) * WALK_AMP_RATIO_B;
-		running.threshold_a = (a_amp_offset - hanging_a) * RUN_AMP_RATIO_A;
-		running.threshold_b = (b_amp_offset - hanging_b) * RUN_AMP_RATIO_B;
+		walking.threshold_a = (hanging_a - a_amp_offset) * WALK_AMP_RATIO_A;
+		walking.threshold_b = (hanging_b - b_amp_offset) * WALK_AMP_RATIO_B;
+		running.threshold_a = (hanging_a - a_amp_offset) * RUN_AMP_RATIO_A;
+		running.threshold_b = (hanging_b - b_amp_offset) * RUN_AMP_RATIO_B;
 		EEP_StepCalibration_Write();
 		COM_Send_Positive();
 	}
@@ -231,12 +231,12 @@ static void step_calibration(void) {
 	}
 	step_flag = 0;
 }
-
+//静置标定
 static void hang_calibration(void) {
 	if (a_amp_1.value < HANG_AMP_THRESHOLD && a_amp_offset > MIN_HANG &&
-			b_amp_1.value < HANG_AMP_THRESHOLD && a_amp_offset > MIN_HANG) {
+			b_amp_1.value < HANG_AMP_THRESHOLD && b_amp_offset > MIN_HANG) {
 		hanging_a = a_amp_offset;
-		hanging_b = a_amp_offset;
+		hanging_b = b_amp_offset;
 		EEP_HangCalibration_Write();
 		COM_Send_Positive();
 	}
@@ -246,17 +246,17 @@ static void hang_calibration(void) {
 	step_flag = 0;
 }
 
-//SOC电压估算
+//SOC估算
 static float caculate_soc(void) {
 	float soc;
-	if (battvolt > 4.18f) {
+	if (battvolt > 4.2f) {
 		soc = 100;
 	}
 	else if (battvolt < 3.35f) {
 		soc = 0.021f;
 	}
 	else {
-		soc = (battvolt - 3.35f) / 0.83f * 100;
+		soc = (battvolt - 3.35f) / 0.85f * 100;
 	}
 	return soc;
 }
@@ -269,7 +269,7 @@ static void get_pressureset(void) {
 
 //呼吸灯
 void FUNC_Led_Breath(void) {
-	if (GPIO_ReadOutputDataBit(LED2_GPIO_PORT, LED2_GPIO_PIN) == Bit_SET) {
+	if (GPIO_ReadOutputDataBit(LED2_GPIO_PORT, LED2_GPIO_PIN) == (uint8_t)Bit_SET) {
 		LED2_ON;
 	}
 	else {
@@ -289,7 +289,8 @@ void FUNC_ChargeOrNot(void) {
 
 //SOC修正
 void FUNC_BattSOC_Caculation(void) {
-	battvolt = (1 - BATTVOLT_FACTOR) * (float) ADC_ConvertedValue[0] / 2048 * 3.3f + BATTVOLT_FACTOR * battvolt;	
+	//电压补偿
+	battvolt = (1 - BATTVOLT_FACTOR) * ((float) ADC_ConvertedValue[0] / 2048 * 3.21f + 0.13f) + BATTVOLT_FACTOR * battvolt;
 	if (charging_flag == 1) {
 		if (caculate_soc() > battsoc) {
 			battsoc += 0.02f;
@@ -307,10 +308,10 @@ void FUNC_Functional_Initial(void) {
 	for (uint8_t i = 0; i < 100; i++) {
 		pressure_a = (1 - INITIAL_FACTOR) * (float) ADC_ConvertedValue[1] / 4096 * 3.3f + INITIAL_FACTOR * pressure_a;
 		pressure_b = (1 - INITIAL_FACTOR) * (float) ADC_ConvertedValue[2] / 4096 * 3.3f + INITIAL_FACTOR * pressure_b;
-		battvolt = (1 - INITIAL_FACTOR) * (float) ADC_ConvertedValue[0] / 2048 * 3.3f + INITIAL_FACTOR * battvolt;
+		battvolt = (1 - INITIAL_FACTOR) * ((float) ADC_ConvertedValue[0] / 2048 * 3.21f + 0.13f) + INITIAL_FACTOR * battvolt;
 		INITIALDELAY;
 	}
-	if (caculate_soc() - battsoc < -12 || caculate_soc() - battsoc > 12) {
+	if (caculate_soc() - battsoc < -6 || caculate_soc() - battsoc > 6) {
 		battsoc = caculate_soc();
 	}
 }
@@ -324,7 +325,7 @@ uint8_t FUNC_SleepOrNot(void) {
 	//非静置状态、通讯状态、充电状态不休眠
 	if (pressure_a > HANG_RATIO * hanging_a && pressure_b > HANG_RATIO * hanging_b && response_flag < 1 && charging_flag != 1) {
 		standingcounter++;
-		//1min后进入待机
+		//30s后进入待机
 		if (standingcounter > 3000) {
 			return 0;
 		}
@@ -342,6 +343,12 @@ void FUNC_Pressure_Filter(void) {
 		temppressure_1 = ((float)filtercounter * temppressure_1 + (float) ADC_ConvertedValue[1] / 4096 * 3.3f) / (float)(filtercounter + 1);
 		temppressure_2 = ((float)filtercounter * temppressure_2 + (float) ADC_ConvertedValue[2] / 4096 * 3.3f) / (float)(filtercounter + 1);
 		SAMPLEDELAY;
+	}
+	//压力补偿
+	if (temppressure_1 > 1.8f) {
+		temppressure_2 = temppressure_2 - 0.006798f * temppressure_1 + 0.02215f;
+	} else {
+		temppressure_2 = temppressure_2 + 0.01f;
 	}
 	pressure_a = (1 - PRESSURE_FACTOR) * temppressure_1 + PRESSURE_FACTOR * pressure_a;
 	pressure_b = (1 - PRESSURE_FACTOR) * temppressure_2 + PRESSURE_FACTOR * pressure_b;
