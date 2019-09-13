@@ -57,10 +57,10 @@ static void Initialization(void) {
 		PWR_ClearFlag(PWR_FLAG_SB);
 		//如果仍处于静置状态，继续休眠
 		if (pressure_a > HANG_RATIO * hanging_a && pressure_b > HANG_RATIO * hanging_b && charging_flag == 0) {
-			RTC_SetAlarm(RTC_GetCounter() + 25); //25s后唤醒
+			RTC_SetAlarm(RTC_GetCounter() + 15); //15s后唤醒
 			RTC_WaitForLastTask();
 			IWDG_Feed();
-			IWDG_Config(IWDG_Prescaler_256, 4095);
+			IWDG_Config(IWDG_Prescaler_256, 2500);
 			PWR_EnterSTANDBYMode();
 		}
 	}
@@ -110,9 +110,9 @@ int main(void) {
 		IWDG_Feed();
 	}
 	EEP_Sleep_Write();
-	RTC_SetAlarm(RTC_GetCounter() + 25); //25s后唤醒
+	RTC_SetAlarm(RTC_GetCounter() + 15); //15s后唤醒
 	RTC_WaitForLastTask();
-	IWDG_Config(IWDG_Prescaler_256, 4095);
+	IWDG_Config(IWDG_Prescaler_256, 2500);
 	IWDG_Feed();
 	//进入待机模式
 	PWR_EnterSTANDBYMode();

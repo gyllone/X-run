@@ -325,8 +325,8 @@ uint8_t FUNC_SleepOrNot(void) {
 	//非静置状态、通讯状态、充电状态不休眠
 	if (pressure_a > HANG_RATIO * hanging_a && pressure_b > HANG_RATIO * hanging_b && response_flag < 1 && charging_flag != 1) {
 		standingcounter++;
-		//30s后进入待机
-		if (standingcounter > 3000) {
+		//40s后进入待机
+		if (standingcounter > 4000) {
 			return 0;
 		}
 	}
