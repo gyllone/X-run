@@ -46,16 +46,12 @@ uint8_t ee_CheckOk(void)
 *	返 回 值: 0 表示失败，1表示成功
 *********************************************************************************************************
 */
-uint8_t ee_ReadBytes(uint8_t *_pReadBuf, uint16_t _usAddress, uint16_t _usSize)
+uint8_t ee_ReadBytes(uint8_t *_pReadBuf, uint8_t _usAddress, uint16_t _usSize)
 {
 	uint16_t i, m;
-	uint8_t dev_addr;
-	uint8_t low_addr;
-	uint8_t high_addr;
-		
-	low_addr =(uint8_t)_usAddress;
-	high_addr = ((uint16_t)_usAddress>>8);
-	dev_addr = EEPROM_DEV_ADDR | ((high_addr)<<1);
+	uint8_t dev_addr; 
+
+	dev_addr = EEPROM_DEV_ADDR ;
 	/* 采用串行EEPROM随即读取指令序列，连续读取若干字节 */
 	
 	/* 第1步：发起I2C总线启动信号 */
@@ -88,7 +84,7 @@ uint8_t ee_ReadBytes(uint8_t *_pReadBuf, uint16_t _usAddress, uint16_t _usSize)
 //	}
 
 	/* 第4步：发送低字节地址*/
-	i2c_SendByte(low_addr);
+	i2c_SendByte(_usAddress);
 	
 	/* 第5步：等待ACK */
 	if (i2c_WaitAck() != 0)
@@ -143,17 +139,13 @@ cmd_fail: /* 命令执行失败后，切记发送停止信号，避免影响I2C总线上其他设备 */
 *	返 回 值: 0 表示失败，1表示成功
 *********************************************************************************************************
 */
-uint8_t ee_WriteBytes(uint8_t *_pWriteBuf, uint16_t _usAddress, uint16_t _usSize)
+uint8_t ee_WriteBytes(uint8_t *_pWriteBuf, uint8_t _usAddress, uint16_t _usSize)
 {
 	uint16_t i,m;
 	uint16_t usAddr;
 	uint8_t dev_addr; 
-	uint8_t low_addr;
-	uint8_t high_addr;
-		
-	low_addr =(uint8_t)_usAddress;
-	high_addr = (((uint16_t)_usAddress)>>8);
-	dev_addr = EEPROM_DEV_ADDR | ((high_addr)<<1);
+	
+	dev_addr = EEPROM_DEV_ADDR;
 	/* 
 		写串行EEPROM不像读操作可以连续读取很多字节，每次写操作只能在同一个page。
 		简单的处理方法为：按字节写操作模式，没写1个字节，都发送地址
@@ -192,7 +184,7 @@ uint8_t ee_WriteBytes(uint8_t *_pWriteBuf, uint16_t _usAddress, uint16_t _usSize
 			}
 		
 			/* 第4步：发送字节地址，24C02只有256字节，因此1个字节就够了，如果是24C04以上，那么此处需要连发多个地址 */
-			i2c_SendByte(low_addr);
+			i2c_SendByte(_usAddress);
 			
 			/* 第5步：等待ACK */
 			if (i2c_WaitAck() != 0)
@@ -242,9 +234,8 @@ uint8_t ee_Erase(void)
 	}
 	else
 	{
-		return 0;
+		return 1;
 	}
 }
-
 
 /*********************************************END OF FILE**********************/

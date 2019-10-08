@@ -2,26 +2,12 @@
 #define __FUNCTION_
 
 #include "stm32f10x.h"
-#include "bsp_adc.h"
 #include "bsp_led.h"
-#include "bsp_usart.h"
 
-#define PRESSURE_FACTOR 0.45 //滤波系数
-#define BATTVOLT_FACTOR 0.3 //滤波系数
+//复数乘法
+#define ProductRe(a, b, c, d) ((a) * (c) - (b) * (d))
+#define ProductIm(a, b, c, d) ((a) * (d) + (b) * (c))
 
-<<<<<<< Updated upstream
-#define WALK_WEIGHT_RATIO 0.85 //走路压力比
-#define RUN_WEIGHT_RATIO 0.75 //跑步压力比
-
-#define SAMPLEDELAY delay_ms(1); //隔1ms读一次电压
-#define LEDDELAY twinkle(100);
-
-//表示步数，run和walk通用
-typedef struct Stepping {
-	float threshold;
-	uint32_t current_steps;
-	uint32_t total_steps;
-=======
 #define INITIAL_FACTOR 						0.35f //初始滤波系数
 #define BATTVOLT_FACTOR 					0.55f //电池滤波系数
 #define PRESSURE_FACTOR 					0.75f //压力滤波系数
@@ -43,25 +29,18 @@ typedef struct Stepping {
 typedef struct Stepping {
 	float 	 		threshold;
 	uint32_t 		total_steps;
->>>>>>> Stashed changes
 } Step;
 
-void FUNC_battSOC_caculation(void);
-void FUNC_functional_initial(void);
-void FUNC_step_counter(void);
+typedef struct Complex {
+	float re;
+	float im;
+} complex;
 
-<<<<<<< Updated upstream
-void Usart_binding_listen(void);
-void Usart_upload_listen(void);
-void Usart_binding_sendseed(void);
-void Usart_sendkey(void);
-void Usart_binding_receivekey(void);
-void Usart_receiveseed(void);
-void Usart_binding_receiveid(void);
-void Usart_sendsoc(void);
-void Usart_sendstep(void);
-void Usart_binding_verify(void);
-=======
+typedef struct Amplitude {
+	int16_t  index;
+	float    value;
+} amplitude;
+
 uint8_t FUNC_SleepOrNot(void);
 void FUNC_ChargeOrNot(void);
 void FUNC_Led_Breath(void);
@@ -69,21 +48,20 @@ void FUNC_BattSOC_Caculation(void);
 void FUNC_Functional_Initial(void);
 void FUNC_Pressure_Filter(void);
 void FUNC_Step_CountOrCalibrate(void);
->>>>>>> Stashed changes
 
 //延时函数
 static void delay_ms(uint16_t nms)
 {
 	uint32_t temp;
 	SysTick->LOAD = 9000 * nms;
-	SysTick->VAL = 0X00;//清空计数器
-	SysTick->CTRL = 0X01;//开始倒数
+	SysTick->VAL = 0x00;//清空计数器
+	SysTick->CTRL = 0x01;//开始倒数
 	do {
 		temp = SysTick -> CTRL; //读取倒计时
 	}
 	while((temp & 0x01) && (!(temp & (1 << 16))));//等待时间到达
   SysTick->CTRL = 0x00; //关闭计数器
-  SysTick->VAL = 0X00; //清空计数器
+  SysTick->VAL = 0x00; //清空计数器
 }
 
 #endif

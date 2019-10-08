@@ -11,19 +11,19 @@
 
  */
 
-/* AT24C01/02Ã¿Ò³ï¿½ï¿½8ï¿½ï¿½ï¿½Ö½ï¿½ 
- * AT24C04/08A/16AÃ¿Ò³ï¿½ï¿½16ï¿½ï¿½ï¿½Ö½ï¿½ 
+/* AT24C01/02Ã¿Ò³ÓÐ8¸ö×Ö½Ú 
+ * AT24C04/08A/16AÃ¿Ò³ÓÐ16¸ö×Ö½Ú 
  */
 	
 
-#define EEPROM_DEV_ADDR			0xA0		/* 24xx16ï¿½ï¿½ï¿½è±¸ï¿½ï¿½Ö· */
-#define EEPROM_PAGE_SIZE		  16			  /* 24xx16ï¿½ï¿½Ò³ï¿½ï¿½ï¿½Ð¡ */
-#define EEPROM_SIZE				  2048			  /* 24xx16ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ */
+#define EEPROM_DEV_ADDR			0xA0		/* 24xx16µÄÉè±¸µØÖ· */
+#define EEPROM_PAGE_SIZE		  8			  /* 24xx16µÄÒ³Ãæ´óÐ¡ */
+#define EEPROM_SIZE				  256			  /* 24xx16×ÜÈÝÁ¿ */
 
 
 uint8_t ee_CheckOk(void);
-uint8_t ee_ReadBytes(uint8_t *_pReadBuf, uint16_t _usAddress, uint16_t _usSize);
-uint8_t ee_WriteBytes(uint8_t *_pWriteBuf, uint16_t _usAddress, uint16_t _usSize);
+uint8_t ee_ReadBytes(uint8_t *_pReadBuf, uint8_t _usAddress, uint16_t _usSize);
+uint8_t ee_WriteBytes(uint8_t *_pWriteBuf, uint8_t _usAddress, uint16_t _usSize);
 uint8_t ee_Erase(void);
 
 #endif /* __I2C_EE_H */

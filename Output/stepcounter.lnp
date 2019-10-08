@@ -37,9 +37,9 @@
 "..\..\output\bsp_rtc.o"
 "..\..\output\bsp_iwdg.o"
 "..\..\output\bsp_chipid.o"
-"..\..\output\crypto.o"
 "..\..\output\functional.o"
 "..\..\output\eeprom.o"
+"..\..\output\communication.o"
 --library_type=microlib --strict --scatter "..\..\Output\stepcounter.sct"
 --summary_stderr --info summarysizes --map --xref --callgraph --symbols
 --info sizes --info totals --info unused --info veneers

@@ -6,16 +6,14 @@
 
 /* ����LED���ӵ�GPIO�˿�, �û�ֻ��Ҫ�޸�����Ĵ��뼴�ɸı���Ƶ�LED���� */
 // LED1
-#define LED1_GPIO_PORT    	GPIOC			              /* GPIO�˿� */
-#define LED1_GPIO_CLK 	    RCC_APB2Periph_GPIOC		/* GPIO�˿�ʱ�� */
-#define LED1_GPIO_PIN		GPIO_Pin_0			        /* ���ӵ�SCLʱ���ߵ�GPIO */
+#define LED1_GPIO_PORT    	GPIOB			              /* GPIO�˿� */
+#define LED1_GPIO_CLK 	    RCC_APB2Periph_GPIOB		/* GPIO�˿�ʱ�� */
+#define LED1_GPIO_PIN				GPIO_Pin_12			        /* ���ӵ�SCLʱ���ߵ�GPIO */
 
 // LED2
-#define LED2_GPIO_PORT    	GPIOC			              /* GPIO�˿� */
-#define LED2_GPIO_CLK 	    RCC_APB2Periph_GPIOC		/* GPIO�˿�ʱ�� */
-#define LED2_GPIO_PIN		GPIO_Pin_1			        /* ���ӵ�SCLʱ���ߵ�GPIO */
-
-
+#define LED2_GPIO_PORT    	GPIOB			              /* GPIO�˿� */
+#define LED2_GPIO_CLK 	    RCC_APB2Periph_GPIOB		/* GPIO�˿�ʱ�� */
+#define LED2_GPIO_PIN				GPIO_Pin_13			        /* ���ӵ�SCLʱ���ߵ�GPIO */
 
 /** the macro definition to trigger the led on or off 
   * 1 - off
