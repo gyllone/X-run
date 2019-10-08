@@ -1,6 +1,10 @@
 #include "bsp_adc.h"
 
+<<<<<<< Updated upstream
 __IO uint16_t ADC_ConvertedValue[NOFCHANEL]={0,0,0};
+=======
+__IO uint16_t ADC_ConvertedValue[NOFCHANEL]={0, 0, 0};
+>>>>>>> Stashed changes
 
 /**
   * @brief  ADC GPIO 初始化
@@ -12,6 +16,7 @@ static void ADCx_GPIO_Config(void)
 	GPIO_InitTypeDef GPIO_InitStructure;
 	
 	// 打开 ADC IO端口时钟
+<<<<<<< Updated upstream
 	ADC_GPIO_APBxClock_FUN ( ADC_GPIO_CLK, ENABLE );
 	
 	// 配置 ADC IO 引脚模式
@@ -23,6 +28,16 @@ static void ADCx_GPIO_Config(void)
 	
 	// 初始化 ADC IO
 	GPIO_Init(ADC_PORT, &GPIO_InitStructure);				
+=======
+	ADC_GPIO_APBxClock_FUN (ADC_GPIO_CLK, ENABLE);
+	
+	// 配置 ADC IO 引脚模式
+	GPIO_InitStructure.GPIO_Pin = ADC_PIN1 | ADC_PIN2 | ADC_PIN3;
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AIN;
+	
+	// 初始化 ADC IO
+	GPIO_Init(ADC_PORT, &GPIO_InitStructure);
+>>>>>>> Stashed changes
 }
 
 /**
@@ -38,14 +53,14 @@ static void ADCx_Mode_Config(void)
 	// 打开DMA时钟
 	RCC_AHBPeriphClockCmd(ADC_DMA_CLK, ENABLE);
 	// 打开ADC时钟
-	ADC_APBxClock_FUN ( ADC_CLK, ENABLE );
+	ADC_APBxClock_FUN (ADC_CLK, ENABLE);
 	
 	// 复位DMA控制器
 	DMA_DeInit(ADC_DMA_CHANNEL);
 	
 	// 配置 DMA 初始化结构体
 	// 外设基址为：ADC 数据寄存器地址
-	DMA_InitStructure.DMA_PeripheralBaseAddr = ( u32 ) ( & ( ADC_x->DR ) );
+	DMA_InitStructure.DMA_PeripheralBaseAddr = (u32)(&(ADC_x->DR));
 	
 	// 存储器地址
 	DMA_InitStructure.DMA_MemoryBaseAddr = (u32)ADC_ConvertedValue;
@@ -100,18 +115,24 @@ static void ADCx_Mode_Config(void)
 	ADC_InitStructure.ADC_DataAlign = ADC_DataAlign_Right;
 	
 	// 转换通道个数
-	ADC_InitStructure.ADC_NbrOfChannel = NOFCHANEL;	
+	ADC_InitStructure.ADC_NbrOfChannel = NOFCHANEL;
 		
 	// 初始化ADC
 	ADC_Init(ADC_x, &ADC_InitStructure);
 	
 	// 配置ADC时钟Ｎ狿CLK2的8分频，即9MHz
-	RCC_ADCCLKConfig(RCC_PCLK2_Div8); 
+	RCC_ADCCLKConfig(RCC_PCLK2_Div8);
 	
 	// 配置ADC 通道的转换顺序和采样时间
+<<<<<<< Updated upstream
 	ADC_RegularChannelConfig(ADC_x, ADC_CHANNEL1, 1, ADC_SampleTime_55Cycles5);
 	ADC_RegularChannelConfig(ADC_x, ADC_CHANNEL2, 2, ADC_SampleTime_55Cycles5);
 	ADC_RegularChannelConfig(ADC_x, ADC_CHANNEL3, 3, ADC_SampleTime_55Cycles5);
+=======
+	ADC_RegularChannelConfig(ADC_x, ADC_CHANNEL1, 1, ADC_SampleTime_239Cycles5);
+	ADC_RegularChannelConfig(ADC_x, ADC_CHANNEL2, 2, ADC_SampleTime_239Cycles5);
+	ADC_RegularChannelConfig(ADC_x, ADC_CHANNEL3, 3, ADC_SampleTime_239Cycles5);
+>>>>>>> Stashed changes
 
 	
 	// 使能ADC DMA 请求

@@ -4,7 +4,6 @@
 
 #include "stm32f10x.h"
 
-
 /* ����LED���ӵ�GPIO�˿�, �û�ֻ��Ҫ�޸�����Ĵ��뼴�ɸı���Ƶ�LED���� */
 // LED1
 #define LED1_GPIO_PORT    	GPIOC			              /* GPIO�˿� */
@@ -15,7 +14,6 @@
 #define LED2_GPIO_PORT    	GPIOC			              /* GPIO�˿� */
 #define LED2_GPIO_CLK 	    RCC_APB2Periph_GPIOC		/* GPIO�˿�ʱ�� */
 #define LED2_GPIO_PIN		GPIO_Pin_1			        /* ���ӵ�SCLʱ���ߵ�GPIO */
-
 
 
 
@@ -37,13 +35,10 @@
 					else		\
 					GPIO_ResetBits(LED2_GPIO_PORT,LED2_GPIO_PIN)
 
-
-
 /* ֱ�Ӳ����Ĵ����ķ�������IO */
 #define	digitalHi(p,i)		 {p->BSRR=i;}	 //���Ϊ�ߵ�ƽ		
 #define digitalLo(p,i)		 {p->BRR=i;}	 //����͵�ƽ
 #define digitalToggle(p,i) {p->ODR ^=i;} //�����ת״̬
-
 
 /* �������IO�ĺ� */
 #define LED1_TOGGLE		 digitalToggle(LED1_GPIO_PORT,LED1_GPIO_PIN)
@@ -54,26 +49,17 @@
 #define LED2_OFF		   digitalHi(LED2_GPIO_PORT,LED2_GPIO_PIN)
 #define LED2_ON			   digitalLo(LED2_GPIO_PORT,LED2_GPIO_PIN)
 
-
-
-
-
-
 #define LED_1\
 					LED1_ON;\
 					LED2_OFF
-
 
 #define LED_2\
 					LED1_OFF;\
 					LED2_ON
 		
-
-
 #define LED_3\
 					LED1_ON;\
 					LED2_ON
-
 
 #define LED_4\
 					LED1_OFF;\

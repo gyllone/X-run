@@ -1,17 +1,11 @@
-#include "stm32f10x.h"
-#include "bsp_led.h"
 #include "bsp_adc.h"
-#include "bsp_i2c_ee.h"
-#include "bsp_i2c_gpio.h"
 #include "bsp_rtc.h"
-#include "bsp_usart.h"
 #include "bsp_iwdg.h"
-#include "bsp_chipid.h"
-#include "stm32f10x_iwdg.h"
 #include "eeprom.h"
 #include "functional.h"
 #include <inttypes.h>
 
+<<<<<<< Updated upstream
 const uint32_t device_id = 0x2A16E4E8;
 
 //ï¿½ï¿½×´Ì¬ï¿½ï¿½0x1AÎªï¿½ó¶¨³É¹ï¿½
@@ -21,6 +15,35 @@ volatile uint32_t app_id;
 //Eï¿½ï¿½×´Ì¬ï¿½ï¿½0ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½1ï¿½ï¿½ï¿½ï¿½
 volatile uint8_t eeprom_status = 0;
 //ï¿½ï¿½Øµï¿½Ñ¹
+=======
+//¼¤»îÂë
+const uint32_t activation_code = 0x2A16E4E8; //0x80C5A77A£¬0x4A8B3FFF
+const uint16_t sw_version = 0x3039;
+
+//°ó¶¨×´Ì¬(0Î´°ó¶¨£¬1°ó¶¨)
+uint8_t binding_flag = 1; //20191005¸ü¸ÄÎª1
+//E·½×´Ì¬(0Îª¹ÊÕÏ£¬1Õý³£)
+uint8_t eeprom_status = 1;
+//×ßÂ·Ïà¹ØÐÅÏ¢
+Step walking = {0.8f, 0};
+//ÅÜ²½Ïà¹ØÐÅÏ¢
+Step running = {1.1f, 0};
+//FFTÌî³ä¼ÆÊý
+uint16_t fillcounter = 0;
+//¾²ÖÃÑ¹Á¦
+float hanging = 3.27f;
+//Ñ¹Á¦Öµ
+float pressure = 0;
+//¼Æ²½±êÖ¾(0±íÊ¾Î´ÔÊÐí¼Æ²½£¬1±íÊ¾¼Æ²½ÖÐ£¬2±íÊ¾ÌåÖØ±ê¶¨£¬3±íÊ¾¾²ÖÃ±ê¶¨)
+uint8_t step_flag = 0;
+//³äµç×´Ì¬(0Î´³äµç£¬1³äµç) ¿¼ÂÇ·ÅÔÚRTCÖÐ¶ÏÖÐÅÐ¶Ï
+volatile uint8_t charging_flag = 0;
+//´®¿Ú»Ø¸´±êÖ¾
+volatile uint8_t response_flag = 0;
+//µç³ØÊµ¼ÊSOC
+volatile float battsoc = 0;
+//µç³ØµçÑ¹
+>>>>>>> Stashed changes
 volatile float battvolt = 0;
 //Ñ¹ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ë²ï¿½Öµ
 volatile float pressure = 0;
@@ -44,6 +67,7 @@ struct rtc_time systmtime = {
 	0, 0, 0, 8, 1, 2019, 0
 };
 
+<<<<<<< Updated upstream
 //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ú½ï¿½ï¿½Õ¼ï¿½ï¿½ï¿½
 uint8_t receivecounter = 0;
 //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×´Ì¬
@@ -165,6 +189,41 @@ void listen_reset(void) {
 			stepflag = 1;
 		}
 	}
+=======
+static void Initialization(void) {
+	//adc³õÊ¼»¯
+	ADCx_Init();
+	//¶ÁÈ¡E·½³õÊ¼Öµ
+	EEP_Initial_Read();
+	//³õÊ¼»¯ÂË²¨µçÑ¹²¢¼ÆËã³õÊ¼SOC
+	FUNC_Functional_Initial();
+	//³äµçÓë·ñ
+	FUNC_ChargeOrNot();
+	//ÊÇ·ñÊÇ´Ó´ý»úÄ£Ê½ÖÐÍË³öµÄ
+	if(PWR_GetFlagStatus(PWR_FLAG_SB) != RESET) {
+		PWR_ClearFlag(PWR_FLAG_SB);
+		//Èç¹ûÈÔ´¦ÓÚ¾²ÖÃ×´Ì¬£¬¼ÌÐøÐÝÃß
+		if (pressure > HANG_RATIO * hanging && charging_flag == 0) {
+			RTC_SetAlarm(RTC_GetCounter() + 5); //5sºó»½ÐÑ
+			RTC_WaitForLastTask();
+			IWDG_Feed();
+			IWDG_Config(IWDG_Prescaler_256, 938);
+			PWR_EnterSTANDBYMode();
+		}
+	}
+	//LED³õÊ¼»¯
+	LED_GPIO_Config();
+	//USART³õÊ¼ÅäÖÃ
+	USART_Config();
+	//20191005Ìí¼Ó
+	binding_flag = 1;
+	//Èô°ó¶¨Ôò¿ªÆô¼Æ²½
+	if (binding_flag == 1) {
+		step_flag = 1;
+	}
+	//¿´ÃÅ¹·³õÊ¼»¯
+	IWDG_Init();
+>>>>>>> Stashed changes
 }
 
 //RTCï¿½Ð¶Ï´ï¿½ï¿½ï¿½
@@ -175,9 +234,15 @@ void RTC_IRQHandler(void)
 	{
 		RTC_ClearITPendingBit(RTC_IT_SEC|RTC_IT_OW);
 		RTC_WaitForLastTask();
+<<<<<<< Updated upstream
 		//ï¿½ï¿½ï¿½ï¿½ï¿½Ð¶Ï´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 		FUNC_battSOC_caculation();
 		listen_reset();
+=======
+		FUNC_Led_Breath();
+		FUNC_ChargeOrNot();
+		FUNC_BattSOC_Caculation();
+>>>>>>> Stashed changes
 	}
 }
 
@@ -190,6 +255,7 @@ void USART1_IRQHandler(void) {
 	}
 }
 
+<<<<<<< Updated upstream
 void Initialization(void) {
   //ledï¿½ï¿½Ê¼ï¿½ï¿½
 	LED_GPIO_Config();
@@ -246,6 +312,9 @@ uint8_t SleepOrNot(void) {
 
 int main(void)
 {	
+=======
+int main(void) {
+>>>>>>> Stashed changes
 	Initialization();
 	//ï¿½ï¿½Ñ­ï¿½ï¿½5msÒ»ï¿½ï¿½
 	while (SleepOrNot())
@@ -254,11 +323,18 @@ int main(void)
 		FUNC_step_counter();
 		IWDG_Feed();
 	}
+<<<<<<< Updated upstream
 	EEP_sleep_write();
 	LEDDELAY;
 	RTC_SetAlarm(RTC_GetCounter() + 25); //25sï¿½ï¿½ï¿½ï¿½
 	RTC_WaitForLastTask();
 	IWDG_Config(IWDG_Prescaler_256 ,4095); //ï¿½ï¿½ï¿½Å¹ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Îªï¿½ï¿½ï¿½
+=======
+	EEP_Sleep_Write();
+	RTC_SetAlarm(RTC_GetCounter() + 5); //5sºó»½ÐÑ
+	RTC_WaitForLastTask();
+	IWDG_Config(IWDG_Prescaler_256, 938);
+>>>>>>> Stashed changes
 	IWDG_Feed();
 	//½øÈëµÍ¹¦ºÄÄ£Ê½
 	PWR_EnterSTANDBYMode();

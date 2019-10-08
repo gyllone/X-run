@@ -35,6 +35,7 @@ void EEP_sleep_write(void);
 #define TOTAL_WALKSTEP_ADDR 0x000E
 
 //跑步总步数
+<<<<<<< Updated upstream
 #define TOTAL_RUNSTEP_SIZE 4
 #define TOTAL_RUNSTEP_ADDR 0x0012
 
@@ -45,5 +46,25 @@ void EEP_sleep_write(void);
 //静置压力标定量
 #define HANG_PRESSURE_SIZE 4
 #define HANG_RPRESSURE_ADDR 0x001A
+=======
+#define TOTAL_RUNSTEP_SIZE 						5
+#define TOTAL_RUNSTEP_ADDR            0x14
+
+//走路标定量
+#define WALK_CALIBRATION_SIZE 				5
+#define WALK_CALIBRATION_ADDR       	0x1E
+
+//跑步标定量
+#define RUN_CALIBRATION_SIZE 					5
+#define RUN_CALIBRATION_ADDR        	0x32
+
+//静置标定量
+#define HANG_CALIBRATION_SIZE 				5
+#define HANG_CALIBRATION_ADDR 				0x46
+
+//SOC
+#define SOC_INITIAL_SIZE							5
+#define SOC_INITIAL_ADDR 							0x5A
+>>>>>>> Stashed changes
 
 #endif

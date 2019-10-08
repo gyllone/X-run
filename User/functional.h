@@ -9,6 +9,7 @@
 #define PRESSURE_FACTOR 0.45 //滤波系数
 #define BATTVOLT_FACTOR 0.3 //滤波系数
 
+<<<<<<< Updated upstream
 #define WALK_WEIGHT_RATIO 0.85 //走路压力比
 #define RUN_WEIGHT_RATIO 0.75 //跑步压力比
 
@@ -20,12 +21,36 @@ typedef struct Stepping {
 	float threshold;
 	uint32_t current_steps;
 	uint32_t total_steps;
+=======
+#define INITIAL_FACTOR 						0.35f //初始滤波系数
+#define BATTVOLT_FACTOR 					0.55f //电池滤波系数
+#define PRESSURE_FACTOR 					0.75f //压力滤波系数
+
+#define HANG_RATIO 								0.98f //悬空系数
+#define WALK_AMP_RATIO						0.4f
+#define RUN_AMP_RATIO							0.65f
+
+#define HANG_AMP_THRESHOLD	 			0.001f
+#define WEIGHT_AMP_THRESHOLD			0.05f
+
+#define MIN_HANG 									3.2f
+#define MAX_WEIGHT								2.9f
+
+#define INITIALDELAY delay_ms(1); //隔1ms读一次电压
+#define SAMPLEDELAY delay_ms(2); //隔2ms读一次电压
+
+//表示步数，run和walk通用
+typedef struct Stepping {
+	float 	 		threshold;
+	uint32_t 		total_steps;
+>>>>>>> Stashed changes
 } Step;
 
 void FUNC_battSOC_caculation(void);
 void FUNC_functional_initial(void);
 void FUNC_step_counter(void);
 
+<<<<<<< Updated upstream
 void Usart_binding_listen(void);
 void Usart_upload_listen(void);
 void Usart_binding_sendseed(void);
@@ -36,6 +61,15 @@ void Usart_binding_receiveid(void);
 void Usart_sendsoc(void);
 void Usart_sendstep(void);
 void Usart_binding_verify(void);
+=======
+uint8_t FUNC_SleepOrNot(void);
+void FUNC_ChargeOrNot(void);
+void FUNC_Led_Breath(void);
+void FUNC_BattSOC_Caculation(void);
+void FUNC_Functional_Initial(void);
+void FUNC_Pressure_Filter(void);
+void FUNC_Step_CountOrCalibrate(void);
+>>>>>>> Stashed changes
 
 //延时函数
 static void delay_ms(uint16_t nms)
@@ -50,20 +84,6 @@ static void delay_ms(uint16_t nms)
 	while((temp & 0x01) && (!(temp & (1 << 16))));//等待时间到达
   SysTick->CTRL = 0x00; //关闭计数器
   SysTick->VAL = 0X00; //清空计数器
-}
-
-static void twinkle(uint16_t nms) {
-	LED1_ON;
-	LED2_ON;
-	delay_ms(nms);
-	LED1_OFF;
-	LED2_OFF;
-	delay_ms(nms);
-	LED1_ON;
-	LED2_ON;
-	delay_ms(nms);
-	LED1_OFF;
-	LED2_OFF;
 }
 
 #endif
